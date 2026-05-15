@@ -1,134 +1,86 @@
-# ChinChin Exchange 🪙
+# ChinChin Intercambio 🪙
 
-Plataforma de intercambio de criptomonedas desarrollada con **Flutter Web**. Permite consultar precios en tiempo real, gestionar un portafolio de activos digitales y realizar intercambios simulados entre criptomonedas.
+¡Bienvenido a **ChinChin Intercambio**! Esta es una plataforma web de alto rendimiento diseñada para la gestión y conversión de activos digitales. El objetivo principal es ofrecer una experiencia de usuario fluida, moderna y visualmente atractiva para el ecosistema cripto.
 
-## 📸 Capturas de pantalla
-
-| Login | Mercado | Intercambio |
-|-------|---------|-------------|
-| Pantalla de inicio de sesión con partículas animadas | Tabla de criptos con precios en tiempo real | Interfaz de swap con cálculo automático |
-
-## 🚀 Funcionalidades
-
-### Autenticación
-- ✅ Registro de usuarios con validación de formularios
-- ✅ Inicio de sesión con email y contraseña
-- ✅ Almacenamiento seguro de tokens de sesión
-- ✅ Protección de rutas (guards de autenticación)
-- ✅ Cierre de sesión
-
-### Consulta de datos
-- ✅ Tabla de criptomonedas con precios en tiempo real (API de Binance)
-- ✅ Actualización automática cada 30 segundos con indicador visual
-- ✅ Búsqueda por nombre o símbolo
-- ✅ Ordenamiento por precio, cambio %, volumen, nombre
-- ✅ Vista detallada con gráfico interactivo de precios
-- ✅ Conversión automática a PTR (1 PTR = 60 USD) y Bs (37.85 Bs = 1 USD)
-
-### Intercambio de criptomonedas
-- ✅ Selección de cripto origen y destino
-- ✅ Cálculo automático de la cantidad a recibir
-- ✅ Tasa de cambio en tiempo real con countdown de expiración
-- ✅ Validación de saldo disponible
-- ✅ Actualización inmediata del portafolio tras el intercambio
-
-### Funcionalidades extra
-- ✅ Historial completo de transacciones realizadas
-- ✅ Sección de configuración (mostrar/ocultar secciones, auto-refresh)
-- ✅ Portafolio con valor total en USD, PTR y Bs
-- ✅ Diseño responsive (desktop y mobile)
-- ✅ Animaciones y micro-interacciones premium
-
-## 🛠️ Tecnologías
-
-| Tecnología | Uso |
-|---|---|
-| **Flutter 3.38** | Framework principal (web) |
-| **Dart 3.10** | Lenguaje de programación |
-| **Riverpod** | Gestión de estado reactiva |
-| **GoRouter** | Enrutamiento declarativo con guards |
-| **Dio** | Cliente HTTP para API de Binance |
-| **FL Chart** | Gráficos de precios interactivos |
-| **flutter_animate** | Animaciones declarativas |
-| **Google Fonts** | Tipografía (Inter, JetBrains Mono) |
-| **SharedPreferences** | Almacenamiento local |
-
-## 📁 Estructura del proyecto
-
-```
-lib/
-├── main.dart                     # Punto de entrada
-├── app.dart                      # Configuración de MaterialApp
-├── core/                         # Núcleo compartido
-│   ├── constants/                # Constantes (API, app)
-│   ├── theme/                    # Sistema de diseño
-│   ├── utils/                    # Utilidades (formatters, validators)
-│   └── network/                  # Cliente HTTP
-├── features/                     # Módulos funcionales
-│   ├── auth/                     # Autenticación
-│   ├── market/                   # Mercado de criptos
-│   ├── exchange/                 # Intercambio
-│   ├── portfolio/                # Portafolio del usuario
-│   ├── history/                  # Historial de transacciones
-│   └── settings/                 # Configuración
-├── shared/                       # Componentes reutilizables
-│   ├── widgets/                  # Widgets compartidos
-│   └── layouts/                  # Layouts base
-└── routing/                      # Navegación y guards
-```
-
-## 🏃 Cómo ejecutar
-
-### Prerrequisitos
-- Flutter SDK 3.10+
-- Navegador web moderno (Chrome recomendado)
-
-### Instalación
-
-```bash
-# Clonar el repositorio
-git clone https://github.com/Danirodrigzz/Frontend.git
-cd Frontend
-
-# Instalar dependencias
-flutter pub get
-
-# Ejecutar en modo desarrollo (web)
-flutter run -d chrome
-```
-
-### Build de producción
-
-```bash
-# Generar build web optimizado
-flutter build web --release
-
-# Los archivos se generan en build/web/
-```
-
-## 🎨 Diseño
-
-- **Modo oscuro premium** con paleta turquesa inspirada en Chinchin
-- **Glassmorphism** en tarjetas y paneles
-- **Animaciones staggered** en la carga de elementos
-- **Parallax** con partículas animadas en el login
-- **Micro-animaciones** en precios, hover effects y transiciones
-- **Tipografía profesional** con Inter y JetBrains Mono para datos financieros
-
-## 🔗 API utilizada
-
-- **Binance API v3** (pública, sin autenticación)
-  - `/api/v3/ticker/24hr` — Estadísticas 24h
-  - `/api/v3/klines` — Datos de velas para gráficos
-  - `/api/v3/ticker/price` — Precios individuales
-
-## 📝 Valores fijos
-
-| Moneda | Valor |
-|--------|-------|
-| **PTR (Petro)** | 1 PTR = 60 USD |
-| **BS (Bolívar)** | 37.85 BS = 1 USD |
+Desarrollada íntegramente con **Flutter Web**, la aplicación combina potencia técnica con un diseño de vanguardia.
 
 ---
 
-Desarrollado como prueba técnica para **Chinchin** 🚀
+## ✨ Lo que hace especial a este proyecto
+
+A diferencia de un dashboard convencional, aquí me enfoqué en los detalles que marcan la diferencia:
+
+*   **💎 Estética Premium**: He implementado un diseño basado en *Glassmorphism* (efecto cristal) y modos oscuros profundos, inspirados en las mejores aplicaciones Fintech actuales.
+*   **⚡ Datos al Instante**: Conexión directa con la API de Binance para obtener precios en tiempo real. ¡Nada de datos estáticos!
+*   **🎨 Animaciones Vivas**: Desde el fondo de partículas en el login hasta las transiciones suaves entre páginas, todo está animado para que la app se sienta "viva".
+*   **📊 Análisis Visual**: Gráficos interactivos de precios (velas/líneas) para que puedas ver la tendencia de tus activos favoritos.
+*   **🇻🇪 Contexto Local**: Conversión automática a **Petros (PTR)** y **Bolívares (Bs)**, adaptada a la realidad del mercado venezolano.
+
+---
+
+## 🚀 Funcionalidades Principales
+
+### 🔐 Seguridad y Acceso
+*   **Sistema de Auth**: Registro e inicio de sesión funcional con validación de formularios en tiempo real.
+*   **Sesiones Persistentes**: Tu sesión se mantiene activa aunque refresques el navegador.
+*   **Rutas Protegidas**: Nadie entra al dashboard sin pasar por la puerta de seguridad.
+
+### 📈 Mercado en Vivo
+*   **Monitor 24h**: Lista completa de criptos con su precio, volumen y cambio porcentual.
+*   **Buscador Inteligente**: Encuentra cualquier moneda por su nombre o símbolo al instante.
+*   **Detalle Profundo**: Haz clic en cualquier activo para ver su gráfico histórico y estadísticas clave.
+
+### 🔄 Intercambio (Swap)
+*   **Calculadora Inteligente**: Selecciona qué vendes y qué recibes, y la app hace las matemáticas por ti.
+*   **Tasa Garantizada**: Un contador de expiración te asegura el precio durante el proceso.
+*   **Validación de Fondos**: No te deja gastar lo que no tienes, con alertas visuales integradas.
+*   **Historial**: Registro detallado de cada operación para que nunca pierdas el rastro de tus movimientos.
+
+---
+
+## 🛠️ El Motor Bajo el Capó (Stack Técnico)
+
+He utilizado las mejores herramientas del ecosistema Flutter para garantizar escalabilidad:
+
+*   **Estado**: [Riverpod](https://riverpod.dev/) (El estándar de oro para apps reactivas).
+*   **Navegación**: [GoRouter](https://pub.dev/packages/go_router) para una gestión de rutas limpia y profesional.
+*   **Networking**: [Dio](https://pub.dev/packages/dio) para peticiones HTTP eficientes.
+*   **Gráficos**: [FL Chart](https://pub.dev/packages/fl_chart) para visualizaciones dinámicas.
+*   **Diseño**: Google Fonts (Inter & JetBrains Mono) y [flutter_animate](https://pub.dev/packages/flutter_animate).
+
+---
+
+## 🏗️ Estructura Organizada
+
+El código sigue una arquitectura basada en **features** (características), lo que facilita su mantenimiento:
+
+```
+lib/
+├── core/         # El corazón: Temas, constantes y utilidades globales.
+├── features/     # Módulos: Auth, Market, Intercambio, Portfolio, History...
+├── shared/       # Lo común: Widgets y Layouts reutilizables.
+└── routing/      # El mapa: Definición de rutas y seguridad.
+```
+
+---
+
+## ⚙️ Cómo ponerlo a marchar
+
+1.  Asegúrate de tener **Flutter 3.10** o superior instalado.
+2.  Clona este repo: `git clone https://github.com/Danirodrigzz/Frontend.git`
+3.  Entra a la carpeta: `cd Frontend`
+4.  Baja las dependencias: `flutter pub get`
+5.  ¡Dale play!: `flutter run -d chrome`
+
+---
+
+## 📝 Datos de Referencia
+
+| Moneda | Tasa de Cambio |
+| :--- | :--- |
+| **Petro (PTR)** | 1 PTR = 60.00 USD |
+| **Bolívar (Bs)** | 1 USD = 37.85 Bs |
+
+---
+
+Diseñado y construido con ❤️ como prueba técnica para **Chinchin** 🚀
