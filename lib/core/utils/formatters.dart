@@ -76,7 +76,11 @@ class Formatters {
   // ── Formato de fecha y hora ──────────────────────────────────
   /// Formato completo: 14 May 2026, 17:30
   static String dateTimeFull(DateTime date) {
-    return DateFormat('dd MMM yyyy, HH:mm', 'es_ES').format(date);
+    try {
+      return DateFormat('dd MMM yyyy, HH:mm', 'es_ES').format(date);
+    } catch (_) {
+      return DateFormat('dd MMM yyyy, HH:mm').format(date);
+    }
   }
 
   /// Formato corto: 14/05/26 17:30
