@@ -209,7 +209,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
               color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Center(child: _buildCryptoLogo(symbol)),
+            child: ClipOval(child: _buildCryptoLogo(symbol)),
           ),
           const SizedBox(width: 12),
           Column(
@@ -229,17 +229,55 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
 
   Widget _buildCryptoLogo(String symbol) {
     final s = symbol.toLowerCase();
-    return Image.asset(
-      'assets/images/crypto/$s.png',
-      width: 20,
-      height: 20,
-      errorBuilder: (_, __, ___) => Image.network(
-        'https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/$s.png',
-        width: 20,
-        height: 20,
-        errorBuilder: (_, __, ___) => Text(symbol[0], style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+    final extensions = ['.png', '.jpeg', '.jpg', '.webp'];
+
+    Widget image = Image.asset(
+      'assets/images/crypto/$s${extensions[0]}',
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Image.asset(
+        'assets/images/crypto/$s${extensions[1]}',
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Image.asset(
+          'assets/images/crypto/$s${extensions[2]}',
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Image.asset(
+            'assets/images/crypto/$s${extensions[3]}',
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Image.network(
+              'https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/$s.png',
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Center(
+                child: Text(
+                  symbol.substring(0, symbol.length > 2 ? 2 : symbol.length),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
+
+    if (symbol.toUpperCase() == 'BNB' || 
+        symbol.toUpperCase() == 'SOL' || 
+        symbol.toUpperCase() == 'LTC' || 
+        symbol.toUpperCase() == 'PTR' || 
+        symbol.toUpperCase() == 'BS') {
+      return Transform.scale(scale: 1.5, child: image);
+    }
+
+    if (symbol.toUpperCase() == 'ADA' || symbol.toUpperCase() == 'XRP') {
+      return Image.network(
+        'https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/${symbol.toLowerCase()}.png',
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => image,
+      );
+    }
+    return image;
   }
 
   Widget _infoRow(String label, String value, Color color) {

@@ -849,7 +849,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
     final s = symbol.toLowerCase();
     final extensions = ['.png', '.jpeg', '.jpg', '.webp'];
 
-    return Image.asset(
+    Widget image = Image.asset(
       'assets/images/crypto/$s${extensions[0]}',
       fit: BoxFit.cover,
       errorBuilder: (_, __, ___) => Image.asset(
@@ -879,5 +879,22 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
         ),
       ),
     );
+
+    if (symbol.toUpperCase() == 'BNB' || 
+        symbol.toUpperCase() == 'SOL' || 
+        symbol.toUpperCase() == 'LTC' || 
+        symbol.toUpperCase() == 'PTR' || 
+        symbol.toUpperCase() == 'BS') {
+      return Transform.scale(scale: 1.5, child: image);
+    }
+
+    if (symbol.toUpperCase() == 'ADA' || symbol.toUpperCase() == 'XRP') {
+      return Image.network(
+        'https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/${symbol.toLowerCase()}.png',
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => image,
+      );
+    }
+    return image;
   }
 }
