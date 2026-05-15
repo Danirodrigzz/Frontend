@@ -24,14 +24,16 @@ class MainLayout extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          // Cabecera principal con el logo y el menú de navegación
-          _buildTopNav(context, authState, rutaActual, ref, isMobile),
-
-          // Espacio donde se cargan las diferentes páginas de la app
-          Expanded(child: child),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Cabecera principal con el logo y el menú de navegación
+            _buildTopNav(context, authState, rutaActual, ref, isMobile),
+  
+            // Espacio donde se cargan las diferentes páginas de la app
+            Expanded(child: child),
+          ],
+        ),
       ),
       bottomNavigationBar: isMobile && authState.usuario != null
           ? BottomNavigationBar(
@@ -74,12 +76,14 @@ class MainLayout extends ConsumerWidget {
               width: isMobile ? 120 : 180,
               child: GestureDetector(
                 onTap: () => context.go('/'),
-                child: Image.asset(
-                  'assets/images/logo.png',
+                child: SvgPicture.asset(
+                  'assets/images/logo-2.svg',
                   height: isMobile ? 22 : 28,
                   fit: BoxFit.contain,
-                  color: AppColors.primary,
-                  colorBlendMode: BlendMode.srcIn,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.primary,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ),
