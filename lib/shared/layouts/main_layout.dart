@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/theme/app_colors.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 
@@ -53,7 +54,7 @@ class MainLayout extends ConsumerWidget {
                   'assets/images/logo.png',
                   height: 28,
                   fit: BoxFit.contain,
-                  color: Colors.white,
+                  color: AppColors.primary,
                   colorBlendMode: BlendMode.srcIn,
                 ),
               ),
@@ -236,8 +237,7 @@ class _InteractiveTabsState extends State<_InteractiveTabs> {
                       ),
                     ],
                   ),
-                ).animate(onPlay: (c) => c.repeat(reverse: true))
-                 .shimmer(delay: 1.seconds, duration: 2.seconds, color: Colors.white.withValues(alpha: 0.4)),
+                ),
               ),
 
             // Los Tabs (capa superior detectora)
@@ -245,7 +245,7 @@ class _InteractiveTabsState extends State<_InteractiveTabs> {
               children: [
                 _buildTab(0, 'Resumen', Icons.grid_view_rounded),
                 _buildTab(1, 'Billetera', Icons.account_balance_wallet_rounded),
-                _buildTab(2, 'Exchange', Icons.swap_horizontal_circle_rounded),
+                _buildTab(2, 'Intercambio', Icons.swap_horizontal_circle_rounded),
                 _buildTab(3, 'Historial', Icons.history_rounded),
                 _buildTab(4, 'Ajustes', Icons.settings_suggest_rounded),
               ],

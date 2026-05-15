@@ -18,7 +18,7 @@ class AppConstants {
   static const int exchangeRateExpirySeconds = 60;
 
   // ── Configuración de la app ──────────────────────────────────
-  static const String appName = 'ChinChin Exchange';
+  static const String appName = 'ChinChin Intercambio';
   static const String appVersion = '1.0.0';
 
   // ── Claves de almacenamiento local ───────────────────────────

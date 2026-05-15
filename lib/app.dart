@@ -15,7 +15,7 @@ class ChinchinApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'ChinChin Exchange',
+      title: 'ChinChin Intercambio',
       debugShowCheckedModeBanner: false,
 
       // Tema oscuro premium personalizado
