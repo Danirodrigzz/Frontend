@@ -11,6 +11,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../shared/widgets/glassmorphic_card.dart';
+import '../../../../shared/widgets/animated_orbs_background.dart';
 
 /// Modelo del estado de configuración de la app
 class SettingsState {
@@ -127,7 +128,7 @@ class SettingsPage extends ConsumerWidget {
 
     return Stack(
       children: [
-        _buildBackgroundOrbs(),
+        const AnimatedOrbsBackground(),
         SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 20, vertical: 12),
           child: Column(
@@ -749,26 +750,6 @@ class SettingsPage extends ConsumerWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildBackgroundOrbs() {
-    return Stack(
-      children: [
-        Positioned(top: -50, left: -100, child: _orb(300, AppColors.primary.withValues(alpha: 0.08))),
-        Positioned(bottom: -100, right: -50, child: _orb(250, const Color(0xFF6366F1).withValues(alpha: 0.06))),
-      ],
-    );
-  }
-
-  Widget _orb(double size, Color color) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(colors: [color, color.withValues(alpha: 0.4), Colors.transparent]),
       ),
     );
   }

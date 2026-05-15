@@ -12,6 +12,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../data/models/crypto_model.dart';
 import '../../data/repositories/market_repository.dart';
+import '../../../../shared/widgets/animated_orbs_background.dart';
 import '../providers/market_provider.dart';
 
 /// Dashboard principal con layout de 3 columnas:
@@ -78,8 +79,8 @@ class _MarketPageState extends ConsumerState<MarketPage> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Orbes de luz para que el fondo se vea bien
-          _buildBackgroundOrbs(),
+          // Orbes de luz animados para el fondo
+          const AnimatedOrbsBackground(),
 
           // El contenido principal de la pantalla
           Padding(
@@ -1122,7 +1123,7 @@ class _MarketPageState extends ConsumerState<MarketPage> {
     body: Stack(
       children: [
         // Consistencia visual con orbes
-        _buildBackgroundOrbs(),
+        const AnimatedOrbsBackground(),
 
         Center(
           child: Column(
@@ -1228,41 +1229,6 @@ class _MarketPageState extends ConsumerState<MarketPage> {
     return image;
   }
 
-  /// Crea orbes de color difuminados en el fondo para que el blur de las tarjetas sea visible.
-  Widget _buildBackgroundOrbs() {
-    return Stack(
-      children: [
-        Positioned(
-          top: -100,
-          left: -50,
-          child: _orb(250, AppColors.primary.withValues(alpha: 0.12)),
-        ),
-        Positioned(
-          bottom: 100,
-          right: -100,
-          child: _orb(300, const Color(0xFF6366F1).withValues(alpha: 0.1)),
-        ),
-        Positioned(
-          top: 200,
-          right: 100,
-          child: _orb(150, const Color(0xFFA855F7).withValues(alpha: 0.08)),
-        ),
-      ],
-    );
-  }
-
-  Widget _orb(double size, Color color) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [color, color.withValues(alpha: 0.4), Colors.transparent],
-        ),
-      ),
-    );
-  }
 }
 
 /// Clase auxiliar para definir el icono y color de marca de cada cripto.

@@ -7,6 +7,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../shared/widgets/animated_orbs_background.dart';
 import '../providers/auth_provider.dart';
 
 /// Pantalla de inicio de sesión premium.
@@ -60,8 +61,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Orbes de colores animados que se mueven suavemente al fondo
-          _buildBackgroundOrbs(),
+          // Orbes de colores animados para el fondo
+          const AnimatedOrbsBackground(),
 
           // Contenedor principal centrado con efecto de cristal (glassmorphism)
           Center(
@@ -426,30 +427,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  Widget _buildBackgroundOrbs() {
-    return Stack(
-      children: [
-        Positioned(top: -100, left: -50,
-          child: _orb(250, AppColors.primary.withValues(alpha: 0.12))),
-        Positioned(bottom: 100, right: -100,
-          child: _orb(300, const Color(0xFF00A688).withValues(alpha: 0.1))),
-        Positioned(top: 200, right: 100,
-          child: _orb(150, const Color(0xFF00D4AA).withValues(alpha: 0.08))),
-      ],
-    );
-  }
-
-  Widget _orb(double size, Color color) {
-    return Container(
-      width: size, height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [color, color.withValues(alpha: 0.4), Colors.transparent],
-        ),
-      ),
-    );
-  }
 }
 
 /// Pinta un grid de puntos decorativos en el panel izquierdo

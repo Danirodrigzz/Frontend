@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/glassmorphic_card.dart';
+import '../../../../shared/widgets/animated_orbs_background.dart';
 import '../../../market/presentation/providers/market_provider.dart';
 import '../providers/history_provider.dart';
 
@@ -35,7 +36,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
 
     return Stack(
       children: [
-        _buildBackgroundOrbs(),
+        const AnimatedOrbsBackground(),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 20, vertical: 12),
           child: Column(
@@ -427,25 +428,6 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
     );
   }
 
-  Widget _buildBackgroundOrbs() {
-    return Stack(
-      children: [
-        Positioned(top: -100, right: -50, child: _orb(250, AppColors.primary.withValues(alpha: 0.08))),
-        Positioned(bottom: -50, left: -50, child: _orb(300, const Color(0xFF6366F1).withValues(alpha: 0.06))),
-      ],
-    );
-  }
-
-  Widget _orb(double size, Color color) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(colors: [color, color.withValues(alpha: 0.4), Colors.transparent]),
-      ),
-    );
-  }
 
   Widget _buildEmptyState() {
     return Center(

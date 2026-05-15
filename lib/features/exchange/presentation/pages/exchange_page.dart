@@ -9,6 +9,7 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../shared/widgets/glassmorphic_card.dart';
 import '../../../../shared/widgets/gradient_button.dart';
+import '../../../../shared/widgets/animated_orbs_background.dart';
 import '../../../market/presentation/providers/market_provider.dart';
 import '../../../portfolio/presentation/providers/portfolio_provider.dart';
 import '../../../history/presentation/providers/history_provider.dart';
@@ -309,7 +310,7 @@ class _ExchangePageState extends ConsumerState<ExchangePage>
 
     return Stack(
       children: [
-        _buildBackgroundOrbs(),
+        const AnimatedOrbsBackground(),
         SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 20, vertical: 12),
           child: Column(
@@ -939,41 +940,6 @@ class _ExchangePageState extends ConsumerState<ExchangePage>
     return image;
   }
 
-  /// Crea orbes de color difuminados en el fondo
-  Widget _buildBackgroundOrbs() {
-    return Stack(
-      children: [
-        Positioned(
-          top: -100,
-          left: -50,
-          child: _orb(250, AppColors.primary.withValues(alpha: 0.12)),
-        ),
-        Positioned(
-          bottom: 100,
-          right: -100,
-          child: _orb(300, const Color(0xFF6366F1).withValues(alpha: 0.1)),
-        ),
-        Positioned(
-          top: 200,
-          right: 100,
-          child: _orb(150, const Color(0xFFA855F7).withValues(alpha: 0.08)),
-        ),
-      ],
-    );
-  }
-
-  Widget _orb(double size, Color color) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [color, color.withValues(alpha: 0.4), Colors.transparent],
-        ),
-      ),
-    );
-  }
 
   Widget _panel({
     required String header,
