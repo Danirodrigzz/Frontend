@@ -78,23 +78,29 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // ── Logo y título ──────────────────────────
-                  _buildLogo()
+                  // ── Logo Oficial ChinChin ──────────────────────────
+                  Image.asset(
+                    'assets/images/logo.png',
+                    height: 80,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => _buildLogo(),
+                  )
                       .animate()
                       .scale(
-                        begin: const Offset(0.5, 0.5),
+                        begin: const Offset(0.8, 0.8),
                         end: const Offset(1, 1),
                         duration: 600.ms,
-                        curve: Curves.elasticOut,
+                        curve: Curves.easeOutBack,
                       )
                       .fadeIn(duration: 400.ms),
 
                   const SizedBox(height: 12),
 
                   Text(
-                    'Crear Cuenta',
-                    style: AppTypography.h1.copyWith(
-                      color: AppColors.onSurface,
+                    'Crea tu cuenta profesional',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                      letterSpacing: 1.1,
                     ),
                   )
                       .animate()

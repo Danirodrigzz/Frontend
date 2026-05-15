@@ -72,4 +72,5 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/crypto/
     - assets/icons/

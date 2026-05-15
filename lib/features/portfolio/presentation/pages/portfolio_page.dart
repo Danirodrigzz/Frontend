@@ -156,22 +156,15 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(
                   children: [
-                    // Ícono del activo
+                    // Ícono del activo limpio
                     Container(
                       width: 40,
                       height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(10),
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
                       ),
-                      child: Center(
-                        child: Text(
-                          simbolo.substring(0, simbolo.length > 2 ? 2 : simbolo.length),
-                          style: AppTypography.labelMedium.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                      child: ClipOval(
+                        child: _buildFlexibleLogo(simbolo, AppColors.primary),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -226,6 +219,43 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                 .slideX(begin: 0.05, end: 0, delay: (200 + index * 60).ms);
           }),
         ],
+      ),
+    );
+  }
+
+  // Helper para cargar logos con múltiples extensiones
+  Widget _buildFlexibleLogo(String symbol, Color fallbackColor) {
+    final s = symbol.toLowerCase();
+    final extensions = ['.png', '.jpeg', '.jpg', '.webp'];
+
+    return Image.asset(
+      'assets/images/crypto/$s${extensions[0]}',
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Image.asset(
+        'assets/images/crypto/$s${extensions[1]}',
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Image.asset(
+          'assets/images/crypto/$s${extensions[2]}',
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Image.asset(
+            'assets/images/crypto/$s${extensions[3]}',
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Image.network(
+              'https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/$s.png',
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Center(
+                child: Text(
+                  symbol.substring(0, symbol.length > 2 ? 2 : symbol.length),
+                  style: AppTypography.labelMedium.copyWith(
+                    color: fallbackColor,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

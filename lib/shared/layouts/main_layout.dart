@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_typography.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 
+/// Layout principal con navegación superior horizontal.
 class MainLayout extends ConsumerWidget {
   final Widget child;
 
@@ -18,174 +18,278 @@ class MainLayout extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: _buildTopNav(context, authState, rutaActual, ref),
       body: Column(
         children: [
-          _buildSubHeader(authState),
+          // ── Barra de navegación superior ─────────────────────
+          _buildTopNav(context, authState, rutaActual, ref),
+
+          // ── Contenido principal ──────────────────────────────
           Expanded(child: child),
         ],
       ),
     );
   }
 
-  PreferredSizeWidget _buildTopNav(BuildContext context, AuthState authState, String rutaActual, WidgetRef ref) {
-    return AppBar(
-      backgroundColor: AppColors.background,
-      elevation: 0,
-      titleSpacing: 0,
-      leadingWidth: 0,
-      automaticallyImplyLeading: false,
-      title: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
+  /// Barra superior con logo, tabs de navegación y perfil
+  Widget _buildTopNav(BuildContext context, AuthState authState, String rutaActual, WidgetRef ref) {
+    return Container(
+      height: 52,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceHeader,
+        border: Border(
+          bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.4)),
         ),
+      ),
+      child: RepaintBoundary(
         child: Row(
           children: [
-            // Logo Turquesa
-            GestureDetector(
-              onTap: () => context.go('/'),
+            // Logo ChinChin (Izquierda)
+            SizedBox(
+              width: 180,
+              child: GestureDetector(
+                onTap: () => context.go('/'),
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  height: 28,
+                  fit: BoxFit.contain,
+                  color: Colors.white,
+                  colorBlendMode: BlendMode.srcIn,
+                ),
+              ),
+            ),
+
+            const Spacer(),
+
+            // ── Tabs de navegación con SEGUIMIENTO DE CURSOR (HOVER) ──
+            _InteractiveTabs(rutaActual: rutaActual),
+
+            const Spacer(),
+
+            // Perfil / Auth (Derecha)
+            SizedBox(
+              width: 180,
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Icon(Icons.currency_exchange_rounded, color: AppColors.primary, size: 28),
-                  const SizedBox(width: 10),
-                  Text(
-                    'CHINCHIN',
-                    style: AppTypography.h4.copyWith(
-                      color: AppColors.onSurface,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
+                  _statusIcons(),
+                  const SizedBox(width: 12),
+                  if (authState.usuario != null)
+                    _userBadge(context, authState, ref)
+                  else
+                    _authButton(context, 'Ingresar', '/login', false),
                 ],
               ),
             ),
-            const SizedBox(width: 40),
-            
-            // Items de Navegación
-            _navItem(context, 'Mercado', '/', rutaActual == '/'),
-            _navItem(context, 'Billetera', '/portfolio', rutaActual == '/portfolio'),
-            _navItem(context, 'Intercambiar', '/exchange', rutaActual == '/exchange'),
-            _navItem(context, 'Historial', '/history', rutaActual == '/history'),
-            
-            const Spacer(),
-            
-            // Usuario y Logout
-            if (authState.usuario != null) ...[
-              _userDropdown(context, authState, ref),
-            ],
           ],
         ),
       ),
-    );
+    ).animate().slideY(begin: -0.2, end: 0, duration: 600.ms, curve: Curves.easeOutQuad);
   }
 
-  Widget _navItem(BuildContext context, String label, String route, bool active) {
-    return InkWell(
-      onTap: () => context.go(route),
-      child: Container(
-        height: 60,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          border: active 
-            ? Border(bottom: BorderSide(color: AppColors.primary, width: 2)) 
-            : null,
-        ),
-        child: Text(
-          label,
-          style: AppTypography.bodyMedium.copyWith(
-            color: active ? AppColors.primary : AppColors.onSurfaceVariant,
-            fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+  /// Iconos de estado (wifi, señal, etc.)
+  Widget _statusIcons() {
+    return Row(
+      children: [
+        Container(
+          width: 6, height: 6,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppColors.success,
+            boxShadow: [BoxShadow(color: AppColors.success.withValues(alpha: 0.5), blurRadius: 4)],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _userDropdown(BuildContext context, AuthState authState, WidgetRef ref) {
-    return PopupMenuButton(
-      offset: const Offset(0, 50),
-      color: AppColors.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 14,
-              backgroundColor: AppColors.surfaceVariant,
-              child: Text(
-                authState.usuario!.nombre[0].toUpperCase(),
-                style: const TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.onSurfaceVariant, size: 18),
-          ],
-        ),
-      ),
-      itemBuilder: (context) => <PopupMenuEntry>[
-        PopupMenuItem(
-          enabled: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(authState.usuario!.nombre, style: AppTypography.bodyMedium.copyWith(color: AppColors.onSurface)),
-              Text(authState.usuario!.email, style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceMuted)),
-            ],
-          ),
-        ),
-        const PopupMenuDivider(),
-        PopupMenuItem(
-          value: 'settings',
-          onTap: () => Future.microtask(() => context.go('/settings')),
-          child: const Row(
-            children: [
-              Icon(Icons.settings_rounded, size: 18),
-              SizedBox(width: 10),
-              Text('Configuración'),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'logout',
-          onTap: () async {
-            await ref.read(authProvider.notifier).cerrarSesion();
-            if (context.mounted) context.go('/login');
-          },
-          child: const Row(
-            children: [
-              Icon(Icons.logout_rounded, size: 18, color: AppColors.error),
-              SizedBox(width: 10),
-              Text('Cerrar Sesión', style: TextStyle(color: AppColors.error)),
-            ],
-          ),
-        ),
+        const SizedBox(width: 6),
+        const Icon(Icons.wifi_rounded, color: AppColors.onSurfaceMuted, size: 16),
+        const SizedBox(width: 6),
+        const Icon(Icons.cell_tower_rounded, color: AppColors.onSurfaceMuted, size: 16),
+        const SizedBox(width: 6),
+        const Icon(Icons.notifications_none_rounded, color: AppColors.onSurfaceMuted, size: 16),
       ],
     );
   }
 
-  Widget _buildSubHeader(AuthState authState) {
-    return Container(
-      height: 40,
-      width: double.infinity,
+  /// Badge de usuario con dropdown
+  Widget _userBadge(BuildContext context, AuthState authState, WidgetRef ref) {
+    return PopupMenuButton<String>(
+      offset: const Offset(0, 45),
       color: AppColors.surface,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: const BorderSide(color: AppColors.border),
+      ),
       child: Row(
         children: [
-          Icon(Icons.campaign_rounded, color: AppColors.primary, size: 16),
-          const SizedBox(width: 8),
-          Text(
-            'Nuevo par PTR/USDT disponible ahora en ChinChin Exchange.',
-            style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceVariant),
+          Container(
+            width: 28, height: 28,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: AppColors.primaryGradient,
+            ),
+            child: Center(
+              child: Text(
+                authState.usuario!.nombre[0].toUpperCase(),
+                style: const TextStyle(
+                  color: AppColors.onPrimary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ),
           ),
-          const Spacer(),
-          Text(
-            'VIP 0',
-            style: AppTypography.labelSmall.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
-          ),
+          const SizedBox(width: 6),
+          Text(authState.usuario!.nombre, style: const TextStyle(
+            color: AppColors.onSurface, fontSize: 12, fontWeight: FontWeight.w500,
+          )),
+          const SizedBox(width: 4),
+          const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.onSurfaceMuted, size: 16),
         ],
+      ),
+      itemBuilder: (_) => <PopupMenuEntry<String>>[
+        PopupMenuItem(
+          enabled: false,
+          child: Text(authState.usuario!.email, style: const TextStyle(
+            color: AppColors.onSurfaceMuted, fontSize: 11,
+          )),
+        ),
+        const PopupMenuDivider(),
+        const PopupMenuItem(value: 'settings', child: Text('Configuración')),
+        const PopupMenuItem(value: 'logout', child: Text('Cerrar Sesión',
+            style: TextStyle(color: AppColors.error))),
+      ],
+      onSelected: (value) async {
+        if (value == 'settings') context.go('/settings');
+        if (value == 'logout') {
+          await ref.read(authProvider.notifier).cerrarSesion();
+          if (context.mounted) context.go('/login');
+        }
+      },
+    );
+  }
+
+  /// Botón de autenticación
+  Widget _authButton(BuildContext context, String label, String ruta, bool filled) {
+    return InkWell(
+      onTap: () => context.go(ruta),
+      borderRadius: BorderRadius.circular(4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: filled ? AppColors.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: AppColors.primary, width: 1),
+        ),
+        child: Text(label, style: TextStyle(
+          color: filled ? AppColors.onPrimary : AppColors.primary,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        )),
+      ),
+    );
+  }
+}
+
+/// Componente interno para gestionar el estado del hover en las pestañas
+class _InteractiveTabs extends StatefulWidget {
+  final String rutaActual;
+  const _InteractiveTabs({required this.rutaActual});
+
+  @override
+  State<_InteractiveTabs> createState() => _InteractiveTabsState();
+}
+
+class _InteractiveTabsState extends State<_InteractiveTabs> {
+  int? _hoveredIndex;
+  static const double tabWidth = 125.0;
+  final List<String> _rutas = ['/', '/portfolio', '/exchange', '/history', '/settings'];
+
+  @override
+  Widget build(BuildContext context) {
+    final activeIndex = _rutas.indexOf(widget.rutaActual);
+    final displayIndex = _hoveredIndex ?? activeIndex;
+
+    return MouseRegion(
+      onExit: (_) => setState(() => _hoveredIndex = null),
+      child: SizedBox(
+        width: tabWidth * 5,
+        height: 52,
+        child: Stack(
+          children: [
+            // El Indicador Magnético (capa inferior) que sigue al cursor
+            if (displayIndex != -1)
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 650), // Más lento y elegante
+                curve: Curves.easeInOutQuart, // Curva más suave
+                bottom: 0,
+                left: displayIndex * tabWidth + (tabWidth - 45) / 2,
+                child: Container(
+                  height: 3,
+                  width: 45,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
+                    color: AppColors.primary,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.6),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                ).animate(onPlay: (c) => c.repeat(reverse: true))
+                 .shimmer(delay: 1.seconds, duration: 2.seconds, color: Colors.white.withValues(alpha: 0.4)),
+              ),
+
+            // Los Tabs (capa superior detectora)
+            Row(
+              children: [
+                _buildTab(0, 'Resumen', Icons.grid_view_rounded),
+                _buildTab(1, 'Billetera', Icons.account_balance_wallet_rounded),
+                _buildTab(2, 'Exchange', Icons.swap_horizontal_circle_rounded),
+                _buildTab(3, 'Historial', Icons.history_rounded),
+                _buildTab(4, 'Ajustes', Icons.settings_suggest_rounded),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ).animate().slideX(begin: 0.1, end: 0, duration: 800.ms, curve: Curves.easeOutCubic).fadeIn();
+  }
+
+  Widget _buildTab(int index, String label, IconData icon) {
+    final activo = widget.rutaActual == _rutas[index];
+    final isHovering = _hoveredIndex == index;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hoveredIndex = index),
+      child: InkWell(
+        onTap: () => context.go(_rutas[index]),
+        hoverColor: Colors.white.withValues(alpha: 0.03),
+        child: Container(
+          height: 52,
+          width: tabWidth,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon, 
+                size: 16, 
+                color: (activo || isHovering) ? AppColors.primary : AppColors.onSurfaceVariant.withValues(alpha: 0.6)
+              ),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: (activo || isHovering) ? Colors.white : AppColors.onSurfaceVariant,
+                  fontSize: 13,
+                  fontWeight: (activo || isHovering) ? FontWeight.w700 : FontWeight.w500,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

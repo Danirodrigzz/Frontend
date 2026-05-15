@@ -1,33 +1,51 @@
 import 'package:flutter/material.dart';
 
+/// Paleta de colores estilo dashboard de trading ChinChin.
+/// Fondo muy oscuro con acentos cyan/turquesa brillantes y glow.
 class AppColors {
   AppColors._();
 
-  static const Color primary = Color(0xFF00BFA6); 
-  static const Color primaryLight = Color(0xFF33CCB8);
-  static const Color accent = Color(0xFF00BFA6); // Añadido para compatibilidad
-  
-  static const Color background = Color(0xFF0B0E11); 
-  static const Color surface = Color(0xFF1E2329);    
-  static const Color surfaceVariant = Color(0xFF2B3139); 
-  static const Color surfaceElevated = Color(0xFF474D57); 
+  // ── Identidad ChinChin ──────────────────────────────────────
+  static const Color primary = Color(0xFF00D4AA);
+  static const Color primaryLight = Color(0xFF33E0BE);
+  static const Color primaryDark = Color(0xFF00A688);
+  static const Color accent = Color(0xFF00D4AA);
+  static const Color onPrimary = Color(0xFF0A0E17);
 
-  static const Color onSurface = Color(0xFFEAECEF);  
-  static const Color onSurfaceVariant = Color(0xFFB7BDC6); 
-  static const Color onSurfaceMuted = Color(0xFF848E9C);   
+  // ── Fondos ──────────────────────────────────────────────────
+  static const Color background = Color(0xFF0A0E17);
+  static const Color surface = Color(0xFF111827);
+  static const Color surfaceVariant = Color(0xFF1A2236);
+  static const Color surfaceElevated = Color(0xFF1E2A3F);
+  static const Color surfaceHeader = Color(0xFF0D1220);
 
-  static const Color border = Color(0xFF2B3139);
-  static const Color divider = Color(0xFF2B3139);
+  // ── Texto ───────────────────────────────────────────────────
+  static const Color textDark = Color(0xFF0A0E17);
+  static const Color onSurface = Color(0xFFE8ECF1);
+  static const Color onSurfaceVariant = Color(0xFF8899AA);
+  static const Color onSurfaceMuted = Color(0xFF5A6A7A);
 
-  static const Color success = Color(0xFF0ECB81); 
-  static const Color error = Color(0xFFF6465D);   
-  static const Color warning = Color(0xFFF0B90B);
-  static const Color info = Color(0xFF38BDF8);
-  static const Color onPrimary = Color(0xFF0B0E11);
+  // ── Bordes y líneas ─────────────────────────────────────────
+  static const Color border = Color(0xFF1C2A3D);
+  static const Color borderGlow = Color(0xFF00D4AA);
+  static const Color divider = Color(0xFF1C2A3D);
 
+  // ── Estados ─────────────────────────────────────────────────
+  static const Color success = Color(0xFF00E68A);
+  static const Color error = Color(0xFFFF4D6A);
+  static const Color warning = Color(0xFFFFB020);
+  static const Color info = Color(0xFF3BA0FF);
+
+  // ── Gradientes ──────────────────────────────────────────────
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF00BFA6), Color(0xFF00E6C4)],
+    colors: [Color(0xFF00D4AA), Color(0xFF00B894)],
+  );
+
+  static const LinearGradient panelGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF111827), Color(0xFF0F1624)],
   );
 }

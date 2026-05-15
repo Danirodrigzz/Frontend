@@ -75,36 +75,38 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // ── Logo y título ──────────────────────────
-                  _buildLogo()
-                      .animate()
-                      .scale(
-                        begin: const Offset(0.5, 0.5),
-                        end: const Offset(1, 1),
-                        duration: 600.ms,
-                        curve: Curves.elasticOut,
-                      )
-                      .fadeIn(duration: 400.ms),
-
-                  const SizedBox(height: 12),
-
-                  Text(
-                    'ChinChin Exchange',
-                    style: AppTypography.h1.copyWith(
-                      color: AppColors.onSurface,
-                      fontSize: screenSize.width < 500 ? 24 : 32,
+                  // ── Logo Oficial ChinChin ──────────────────────────
+                  Image.asset(
+                    'assets/images/logo.png',
+                    height: 80,
+                    fit: BoxFit.contain,
+                    color: Colors.white,
+                    colorBlendMode: BlendMode.srcIn,
+                    errorBuilder: (_, __, ___) => const Text('CHINCHIN',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 28,
+                        letterSpacing: 2,
+                      ),
                     ),
                   )
                       .animate()
-                      .fadeIn(delay: 200.ms, duration: 500.ms)
-                      .slideY(begin: 0.3, end: 0, delay: 200.ms),
+                      .scale(
+                        begin: const Offset(0.8, 0.8),
+                        end: const Offset(1, 1),
+                        duration: 600.ms,
+                        curve: Curves.easeOutBack,
+                      )
+                      .fadeIn(duration: 400.ms),
 
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
 
                   Text(
-                    'Intercambio de criptomonedas seguro y rápido',
-                    style: AppTypography.bodyMedium.copyWith(
+                    'Intercambio seguro y profesional',
+                    style: AppTypography.bodySmall.copyWith(
                       color: AppColors.onSurfaceVariant,
+                      letterSpacing: 1.1,
                     ),
                     textAlign: TextAlign.center,
                   )
