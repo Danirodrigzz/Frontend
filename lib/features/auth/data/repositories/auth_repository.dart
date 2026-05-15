@@ -9,7 +9,7 @@ import '../models/user_model.dart';
 class AuthRepository {
   static const _registeredUsersKey = 'registered_users';
 
-  // ── Registro de usuario ──────────────────────────────────────
+  // Registro de usuario
   /// Registra un nuevo usuario validando que el email no exista.
   /// Retorna el usuario creado o lanza una excepción si ya existe.
   Future<UserModel> registrar({
@@ -50,7 +50,7 @@ class AuthRepository {
     return nuevoUsuario;
   }
 
-  // ── Inicio de sesión ─────────────────────────────────────────
+  // Inicio de sesión
   /// Autentica al usuario verificando email y contraseña.
   /// Retorna el usuario si las credenciales son correctas.
   Future<UserModel> iniciarSesion({
@@ -81,7 +81,7 @@ class AuthRepository {
     return usuario.first;
   }
 
-  // ── Verificación de sesión ───────────────────────────────────
+  // Verificación de sesión
   /// Verifica si hay una sesión activa (token almacenado).
   /// Retorna el usuario de la sesión o null si no hay sesión.
   Future<UserModel?> verificarSesion() async {
@@ -109,7 +109,7 @@ class AuthRepository {
     }
   }
 
-  // ── Cierre de sesión ─────────────────────────────────────────
+  // Cierre de sesión
   /// Elimina el token y los datos de sesión del usuario.
   Future<void> cerrarSesion() async {
     final prefs = await SharedPreferences.getInstance();
@@ -117,7 +117,7 @@ class AuthRepository {
     await prefs.remove(AppConstants.userKey);
   }
 
-  // ── Métodos privados ─────────────────────────────────────────
+  // Métodos privados
 
   /// Genera un hash simple de la contraseña (simulación, no criptográfico real)
   String _hashContrasena(String contrasena) {

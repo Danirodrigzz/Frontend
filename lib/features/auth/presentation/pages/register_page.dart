@@ -48,7 +48,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final size = MediaQuery.of(context).size;
-    final isWide = size.width > 800;
+    final isWide = size.width > 1200;
 
     ref.listen<AuthState>(authProvider, (prev, next) {
       if (next.error != null) {
@@ -64,13 +64,16 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // ── Fondo con orbes ─────────────────────────────────────
+          // Fondo dinámico con esferas de luz difuminadas
           _buildBackgroundOrbs(),
 
-          // ── Contenido principal ─────────────────────────────────
+          // Tarjeta principal con el formulario de creación de cuenta
           Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 820, maxHeight: 540),
+              constraints: BoxConstraints(
+                maxWidth: 820, 
+                maxHeight: isWide ? 540 : size.height,
+              ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(14),
                 child: BackdropFilter(
@@ -83,13 +86,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     ),
                     child: isWide
                         ? Row(children: [
-                            // ── Panel decorativo izquierdo ────────
+                            // Panel de marca consistente con la estética del login
                             Expanded(child: _buildBrandPanel()),
                             Container(
                               width: 1,
                               color: Colors.white.withValues(alpha: 0.05),
                             ),
-                            // ── Formulario derecho ────────────────
+                            // Columna derecha con los campos para el nuevo perfil
                             SizedBox(
                               width: 370,
                               child: SingleChildScrollView(
@@ -101,7 +104,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                SizedBox(height: 160, child: _buildBrandPanel()),
+                                SizedBox(height: 100, child: _buildBrandPanel(isMobile: true)),
                                 Divider(height: 1, color: Colors.white.withValues(alpha: 0.05)),
                                 _buildFormPanel(authState),
                               ],
@@ -120,7 +123,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   }
 
   /// Panel izquierdo decorativo con logo, grid y estadísticas
-  Widget _buildBrandPanel() {
+  Widget _buildBrandPanel({bool isMobile = false}) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -135,12 +138,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       ),
       child: Stack(
         children: [
-          // ── Grid de puntos decorativo ───────────────────────────
+          // El fondo de puntitos
           Positioned.fill(
             child: CustomPaint(painter: _DotGridPainter()),
           ),
 
-          // ── Glow radial ────────────────────────────────────────
+          // Un brillito detrás
           Center(
             child: Container(
               width: 200,
@@ -158,23 +161,23 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             ),
           ),
 
-          // ── Contenido ──────────────────────────────────────────
+          // Contenido principal del formulario
           Center(
             child: Padding(
-              padding: const EdgeInsets.all(28),
+              padding: EdgeInsets.all(isMobile ? 10 : 28),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SvgPicture.asset(
                     'assets/images/logo-2.svg',
-                    height: 64,
+                    height: isMobile ? 32 : 64,
                     colorFilter: const ColorFilter.mode(
                       AppColors.primary,
                       BlendMode.srcIn,
                     ),
                     placeholderBuilder: (_) => Icon(
                       Icons.currency_exchange_rounded,
-                      size: 64,
+                      size: isMobile ? 32 : 64,
                       color: AppColors.primary,
                     ),
                   ).animate(onPlay: (c) => c.repeat(reverse: true))
@@ -185,13 +188,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                      curve: Curves.easeInOut,
                    ),
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: isMobile ? 8 : 20),
 
                   Text(
                     'CHINCHIN',
                     style: TextStyle(
                       color: AppColors.onSurface,
-                      fontSize: 18,
+                      fontSize: isMobile ? 14 : 18,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 6,
                     ),
@@ -201,24 +204,25 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     'INTERCAMBIO',
                     style: TextStyle(
                       color: AppColors.primary,
-                      fontSize: 10,
+                      fontSize: isMobile ? 8 : 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 4,
                     ),
                   ),
 
-                  const SizedBox(height: 28),
+                  if (!isMobile) const SizedBox(height: 28),
 
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _miniStat('24/7', 'Mercado'),
-                      _miniStatDivider(),
-                      _miniStat('10+', 'Criptos'),
-                      _miniStatDivider(),
-                      _miniStat('0%', 'Comisión'),
-                    ],
-                  ),
+                  if (!isMobile)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _miniStat('24/7', 'Mercado'),
+                        _miniStatDivider(),
+                        _miniStat('10+', 'Criptos'),
+                        _miniStatDivider(),
+                        _miniStat('0%', 'Comisión'),
+                      ],
+                    ),
                 ],
               ),
             ),

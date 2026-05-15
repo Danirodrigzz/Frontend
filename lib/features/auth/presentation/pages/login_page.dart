@@ -44,7 +44,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final size = MediaQuery.of(context).size;
-    final isWide = size.width > 800;
+    final isWide = size.width > 1200;
 
     ref.listen<AuthState>(authProvider, (prev, next) {
       if (next.error != null) {
@@ -60,13 +60,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // ── Fondo con orbes ─────────────────────────────────────
+          // Orbes de colores animados que se mueven suavemente al fondo
           _buildBackgroundOrbs(),
 
-          // ── Contenido principal ─────────────────────────────────
+          // Contenedor principal centrado con efecto de cristal (glassmorphism)
           Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 820, maxHeight: 480),
+              constraints: BoxConstraints(
+                maxWidth: 820, 
+                maxHeight: isWide ? 540 : size.height,
+              ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(14),
                 child: BackdropFilter(
@@ -79,21 +82,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ),
                     child: isWide
                         ? Row(children: [
-                            // ── Panel decorativo izquierdo ────────
+                            // Panel lateral con la marca y el diseño de rejilla decorativa
                             Expanded(child: _buildBrandPanel()),
-                            // ── Separador vertical ───────────────
+                            // Línea vertical sutil para separar los paneles
                             Container(
                               width: 1,
                               color: Colors.white.withValues(alpha: 0.05),
                             ),
-                            // ── Formulario derecho ────────────────
+                            // Sección derecha con los campos de texto para el acceso
                             SizedBox(width: 340, child: _buildFormPanel(authState)),
                           ])
                         : SingleChildScrollView(
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                SizedBox(height: 180, child: _buildBrandPanel()),
+                                SizedBox(height: 100, child: _buildBrandPanel(isMobile: true)),
                                 Divider(height: 1, color: Colors.white.withValues(alpha: 0.05)),
                                 _buildFormPanel(authState),
                               ],
@@ -112,7 +115,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   /// Panel izquierdo decorativo con logo, grid y estadísticas
-  Widget _buildBrandPanel() {
+  Widget _buildBrandPanel({bool isMobile = false}) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -127,12 +130,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       ),
       child: Stack(
         children: [
-          // ── Grid de puntos decorativo ───────────────────────────
+          // El fondo de puntitos
           Positioned.fill(
             child: CustomPaint(painter: _DotGridPainter()),
           ),
 
-          // ── Glow radial detrás del logo ────────────────────────
+          // Un brillito detrás del logo
           Center(
             child: Container(
               width: 200,
@@ -150,24 +153,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
           ),
 
-          // ── Contenido del panel ─────────────────────────────────
+          // Información y logo dentro del panel
           Center(
             child: Padding(
-              padding: const EdgeInsets.all(28),
+              padding: EdgeInsets.all(isMobile ? 10 : 28),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Logo con color correcto
                   SvgPicture.asset(
                     'assets/images/logo-2.svg',
-                    height: 64,
+                    height: isMobile ? 32 : 64,
                     colorFilter: const ColorFilter.mode(
                       AppColors.primary,
                       BlendMode.srcIn,
                     ),
                     placeholderBuilder: (_) => Icon(
                       Icons.currency_exchange_rounded,
-                      size: 64,
+                      size: isMobile ? 32 : 64,
                       color: AppColors.primary,
                     ),
                   ).animate(onPlay: (c) => c.repeat(reverse: true))
@@ -178,14 +181,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                      curve: Curves.easeInOut,
                    ),
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: isMobile ? 8 : 20),
 
                   // Nombre
                   Text(
                     'CHINCHIN',
                     style: TextStyle(
                       color: AppColors.onSurface,
-                      fontSize: 18,
+                      fontSize: isMobile ? 14 : 18,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 6,
                     ),
@@ -195,25 +198,26 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     'INTERCAMBIO',
                     style: TextStyle(
                       color: AppColors.primary,
-                      fontSize: 10,
+                      fontSize: isMobile ? 8 : 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 4,
                     ),
                   ),
 
-                  const SizedBox(height: 28),
+                  if (!isMobile) const SizedBox(height: 28),
 
-                  // Mini stats
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _miniStat('24/7', 'Mercado'),
-                      _miniStatDivider(),
-                      _miniStat('10+', 'Criptos'),
-                      _miniStatDivider(),
-                      _miniStat('0%', 'Comisión'),
-                    ],
-                  ),
+                  // Mini stats (Solo en desktop o si hay espacio)
+                  if (!isMobile)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _miniStat('24/7', 'Mercado'),
+                        _miniStatDivider(),
+                        _miniStat('10+', 'Criptos'),
+                        _miniStatDivider(),
+                        _miniStat('0%', 'Comisión'),
+                      ],
+                    ),
                 ],
               ),
             ),
