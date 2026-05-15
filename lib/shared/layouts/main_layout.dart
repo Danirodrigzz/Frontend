@@ -112,59 +112,36 @@ class MainLayout extends ConsumerWidget {
 
   /// Badge de usuario con dropdown
   Widget _userBadge(BuildContext context, AuthState authState, WidgetRef ref) {
-    return PopupMenuButton<String>(
-      offset: const Offset(0, 45),
-      color: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: const BorderSide(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 28, height: 28,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: AppColors.primaryGradient,
-            ),
-            child: Center(
-              child: Text(
-                authState.usuario!.nombre[0].toUpperCase(),
-                style: const TextStyle(
-                  color: AppColors.onPrimary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+    return GestureDetector(
+      onTap: () => context.go('/settings'),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Row(
+          children: [
+            Container(
+              width: 28, height: 28,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: AppColors.primaryGradient,
+              ),
+              child: Center(
+                child: Text(
+                  authState.usuario!.nombre[0].toUpperCase(),
+                  style: const TextStyle(
+                    color: AppColors.onPrimary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 6),
-          Text(authState.usuario!.nombre, style: const TextStyle(
-            color: AppColors.onSurface, fontSize: 12, fontWeight: FontWeight.w500,
-          )),
-          const SizedBox(width: 4),
-          const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.onSurfaceMuted, size: 16),
-        ],
-      ),
-      itemBuilder: (_) => <PopupMenuEntry<String>>[
-        PopupMenuItem(
-          enabled: false,
-          child: Text(authState.usuario!.email, style: const TextStyle(
-            color: AppColors.onSurfaceMuted, fontSize: 11,
-          )),
+            const SizedBox(width: 6),
+            Text(authState.usuario!.nombre, style: const TextStyle(
+              color: AppColors.onSurface, fontSize: 12, fontWeight: FontWeight.w500,
+            )),
+          ],
         ),
-        const PopupMenuDivider(),
-        const PopupMenuItem(value: 'settings', child: Text('Configuración')),
-        const PopupMenuItem(value: 'logout', child: Text('Cerrar Sesión',
-            style: TextStyle(color: AppColors.error))),
-      ],
-      onSelected: (value) async {
-        if (value == 'settings') context.go('/settings');
-        if (value == 'logout') {
-          await ref.read(authProvider.notifier).cerrarSesion();
-          if (context.mounted) context.go('/login');
-        }
-      },
+      ),
     );
   }
 

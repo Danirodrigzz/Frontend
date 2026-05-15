@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -219,6 +221,37 @@ class SettingsPage extends ConsumerWidget {
                                 _infoRow('Almacenamiento', 'Local (SharedPrefs)', AppColors.onSurfaceVariant),
                                 const SizedBox(height: 10),
                                 _infoRow('Plataforma', 'Web (Flutter)', AppColors.primary),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _panel(
+                          header: 'SESIÓN',
+                          icon: Icons.account_circle_outlined,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton.icon(
+                                    onPressed: () async {
+                                      await ref.read(authProvider.notifier).cerrarSesion();
+                                      if (context.mounted) context.go('/login');
+                                    },
+                                    icon: const Icon(Icons.logout_rounded, size: 16),
+                                    label: const Text('Cerrar Sesión', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.error.withValues(alpha: 0.1),
+                                      foregroundColor: AppColors.error,
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      side: BorderSide(color: AppColors.error.withValues(alpha: 0.3)),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
