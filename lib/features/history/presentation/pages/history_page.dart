@@ -31,102 +31,133 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
     final historyState = ref.watch(historyProvider);
     final market = ref.watch(marketProvider);
 
+    final isMobile = MediaQuery.of(context).size.width < 1200;
+
     return Stack(
       children: [
         _buildBackgroundOrbs(),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 20, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── ENCABEZADO ───────────────────────────────────
+              // Título de la página
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Historial de Actividad',
-                        style: AppTypography.h3.copyWith(color: AppColors.onSurface),
-                      ),
-                      Text(
-                        'Registro cronológico de tus intercambios realizados',
-                        style: AppTypography.labelSmall.copyWith(
-                          color: AppColors.onSurfaceVariant,
-                          fontSize: 10,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Historial de Actividad',
+                          style: AppTypography.h3.copyWith(color: AppColors.onSurface, fontSize: isMobile ? 18 : 22),
                         ),
-                      ),
-                    ],
+                        Text(
+                          'Registro cronológico de tus intercambios realizados',
+                          style: AppTypography.labelSmall.copyWith(
+                            color: AppColors.onSurfaceVariant,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  _statusRow('ESTADO', 'ACTUALIZADO', AppColors.success),
+                  if (!isMobile) _statusRow('ESTADO', 'ACTUALIZADO', AppColors.success),
                 ],
               ),
               const SizedBox(height: 16),
 
               Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ═══ COLUMNA IZQUIERDA (Estadísticas Rápidas) ═══════
-                    SizedBox(
-                      width: 250,
-                      child: Column(
-                        children: [
-                          _panel(
-                            header: 'RESUMEN',
-                            icon: Icons.analytics_rounded,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                children: [
-                                  _infoRow('Transacciones', historyState.transacciones.length.toString(), AppColors.primary),
-                                  const SizedBox(height: 12),
-                                  _infoRow('Estado Red', 'Sincronizado', AppColors.success),
-                                  const SizedBox(height: 12),
-                                  _infoRow('Última Op', historyState.transacciones.isEmpty ? '-' : 'Hoy', AppColors.onSurface),
-                                ],
+                child: isMobile
+                    ? SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            _panel(
+                              header: 'RESUMEN',
+                              icon: Icons.analytics_rounded,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  children: [
+                                    _infoRow('Transacciones', historyState.transacciones.length.toString(), AppColors.primary),
+                                    const SizedBox(height: 12),
+                                    _infoRow('Estado Red', 'Sincronizado', AppColors.success),
+                                    const SizedBox(height: 12),
+                                    _infoRow('Última Op', historyState.transacciones.isEmpty ? '-' : 'Hoy', AppColors.onSurface),
+                                  ],
+                                ),
                               ),
+                            ),
+                            const SizedBox(height: 12),
+                            if (historyState.transacciones.isEmpty)
+                              SizedBox(height: 300, child: _buildEmptyState())
+                            else
+                              ...historyState.transacciones.asMap().entries.map(
+                                (entry) => _buildTransactionItem(entry.value, entry.key),
+                              ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 250,
+                            child: Column(
+                              children: [
+                                _panel(
+                                  header: 'RESUMEN',
+                                  icon: Icons.analytics_rounded,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      children: [
+                                        _infoRow('Transacciones', historyState.transacciones.length.toString(), AppColors.primary),
+                                        const SizedBox(height: 12),
+                                        _infoRow('Estado Red', 'Sincronizado', AppColors.success),
+                                        const SizedBox(height: 12),
+                                        _infoRow('Última Op', historyState.transacciones.isEmpty ? '-' : 'Hoy', AppColors.onSurface),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                _panel(
+                                  header: 'SEGURIDAD',
+                                  icon: Icons.lock_outline_rounded,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          'Todas las transacciones están cifradas y almacenadas localmente.',
+                                          style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceMuted, fontSize: 9),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        _statusRow('Cifrado', 'AES-256', AppColors.onSurfaceVariant),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          _panel(
-                            header: 'SEGURIDAD',
-                            icon: Icons.lock_outline_rounded,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    'Todas las transacciones están cifradas y almacenadas localmente.',
-                                    style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceMuted, fontSize: 9),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: historyState.transacciones.isEmpty
+                                ? _buildEmptyState()
+                                : ListView.builder(
+                                    itemCount: historyState.transacciones.length,
+                                    itemBuilder: (context, index) {
+                                      final tx = historyState.transacciones[index];
+                                      return _buildTransactionItem(tx, index);
+                                    },
                                   ),
-                                  const SizedBox(height: 10),
-                                  _statusRow('Cifrado', 'AES-256', AppColors.onSurfaceVariant),
-                                ],
-                              ),
-                            ),
                           ),
                         ],
                       ),
-                    ),
-
-                    const SizedBox(width: 20),
-
-                    // ═══ COLUMNA DERECHA (Lista de Transacciones) ════════
-                    Expanded(
-                      child: historyState.transacciones.isEmpty
-                          ? _buildEmptyState()
-                          : ListView.builder(
-                              itemCount: historyState.transacciones.length,
-                              itemBuilder: (context, index) {
-                                final tx = historyState.transacciones[index];
-                                return _buildTransactionItem(tx, index);
-                              },
-                            ),
-                    ),
-                  ],
-                ),
               ),
             ],
           ),
@@ -136,23 +167,25 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
   }
 
   Widget _buildTransactionItem(dynamic tx, int index) {
+    final isMobile = MediaQuery.of(context).size.width < 1200;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: GlassmorphicCard(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isMobile ? 12 : 16),
         child: Column(
           children: [
             Row(
               children: [
-                // Info Origen
-                _cryptoColumn(tx.simboloOrigen, tx.cantidadOrigen, AppColors.error, true),
+                // De dónde sale la plata
+                Expanded(child: _cryptoColumnCompact(tx.simboloOrigen, tx.cantidadOrigen, AppColors.error, true)),
                 
-                // Divisor Central con animación
+                // El icono del medio
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.symmetric(horizontal: isMobile ? 8 : 20),
                   child: Column(
                     children: [
-                      const Icon(Icons.swap_horiz_rounded, color: AppColors.primary, size: 24),
+                      Icon(Icons.swap_horiz_rounded, color: AppColors.primary, size: isMobile ? 20 : 24),
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -169,32 +202,82 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                   ),
                 ),
 
-                // Info Destino
-                _cryptoColumn(tx.simboloDestino, tx.cantidadDestino, AppColors.success, false),
+                // A qué moneda se cambió
+                Expanded(child: _cryptoColumnCompact(tx.simboloDestino, tx.cantidadDestino, AppColors.success, false)),
                 
-                const Spacer(),
-
-                // Fecha y Tasa
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      Formatters.dateTimeFull(tx.fecha).toUpperCase(),
-                      style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceMuted, fontSize: 9),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Tasa: 1 ${tx.simboloOrigen} = ${tx.tasaCambio.toStringAsFixed(tx.tasaCambio >= 1 ? 4 : 8)}',
-                      style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
+                if (!isMobile) ...[
+                  const Spacer(),
+                  // Detalles extra para escritorio
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        Formatters.dateTimeFull(tx.fecha).toUpperCase(),
+                        style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceMuted, fontSize: 9),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Tasa: 1 ${tx.simboloOrigen} = ${tx.tasaCambio.toStringAsFixed(tx.tasaCambio >= 1 ? 4 : 8)}',
+                        style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
+            if (isMobile) ...[
+              const SizedBox(height: 8),
+              Divider(height: 1, color: Colors.white.withValues(alpha: 0.05)),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    Formatters.dateTimeFull(tx.fecha).toUpperCase(),
+                    style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceMuted, fontSize: 9),
+                  ),
+                  Text(
+                    'Tasa: ${tx.tasaCambio.toStringAsFixed(tx.tasaCambio >= 1 ? 4 : 8)}',
+                    style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 9, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
     ).animate().fadeIn(delay: (index * 50).ms).slideX(begin: 0.05, end: 0);
+  }
+
+  Widget _cryptoColumnCompact(String symbol, double amount, Color color, bool isOutgoing) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: ClipOval(child: _buildCryptoLogo(symbol)),
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(symbol, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.bold, fontSize: 12)),
+              Text(
+                '${isOutgoing ? "-" : "+"}${amount.toStringAsFixed(amount >= 1 ? 4 : 6)}',
+                style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w700),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _cryptoColumn(String symbol, double amount, Color color, bool isOutgoing) {

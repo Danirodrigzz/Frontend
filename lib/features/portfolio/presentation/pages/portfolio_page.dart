@@ -95,113 +95,184 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
             market,
           )
         : 0.0;
+    final isMobile = MediaQuery.of(context).size.width < 1200;
 
     return Padding(
       padding: const EdgeInsets.all(10),
-      child: Row(
-        children: [
-          // ═══ COLUMNA IZQUIERDA: Resumen + Distribución ═══════
-          SizedBox(
-            width: 260,
-            child: Column(
-              children: [
-                // Panel: RESUMEN TOTAL
-                Expanded(
-                  flex: 5,
-                  child: _panel(
-                    header: 'RESUMEN DEL PORTAFOLIO',
-                    icon: Icons.account_balance_wallet_rounded,
-                    child: _buildSummaryContent(
-                      valorTotalUsd,
-                      activosConValor.length,
-                      mejorActivo,
-                      mejorValor,
+      child: isMobile
+          ? SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 300,
+                    child: _panel(
+                      header: 'RESUMEN DEL PORTAFOLIO',
+                      icon: Icons.account_balance_wallet_rounded,
+                      child: _buildSummaryContent(
+                        valorTotalUsd,
+                        activosConValor.length,
+                        mejorActivo,
+                        mejorValor,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                // Panel: DISTRIBUCIÓN (Donut)
-                Expanded(
-                  flex: 4,
-                  child: _panel(
-                    header: 'DISTRIBUCIÓN DE ACTIVOS',
-                    icon: Icons.pie_chart_outline_rounded,
-                    child: _buildDonutChart(
-                      activosConValor,
-                      valorTotalUsd,
-                      market,
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 300,
+                    child: _panel(
+                      header: 'DISTRIBUCIÓN DE ACTIVOS',
+                      icon: Icons.pie_chart_outline_rounded,
+                      child: _buildDonutChart(
+                        activosConValor,
+                        valorTotalUsd,
+                        market,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 10),
-
-          // ═══ COLUMNA CENTRAL: Lista de activos ═══════════════
-          Expanded(
-            child: _panel(
-              header: 'MIS ACTIVOS',
-              icon: Icons.list_alt_rounded,
-              headerExtra: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: Text(
-                  '${activosConValor.length} activos',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 500,
+                    child: _panel(
+                      header: 'MIS ACTIVOS',
+                      icon: Icons.list_alt_rounded,
+                      headerExtra: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        child: Text(
+                          '${activosConValor.length} activos',
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      child: _buildAssetList(activosConValor, valorTotalUsd, market),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 400,
+                    child: _panel(
+                      header: 'MÉTRICAS RÁPIDAS',
+                      icon: Icons.analytics_outlined,
+                      child: _buildQuickStats(
+                        activosConValor,
+                        valorTotalUsd,
+                        market,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
-              child: _buildAssetList(activosConValor, valorTotalUsd, market),
-            ),
-          ),
-
-          const SizedBox(width: 10),
-
-          // ═══ COLUMNA DERECHA: Estadísticas rápidas ═══════════
-          SizedBox(
-            width: 220,
-            child: Column(
+            )
+          : Row(
               children: [
-                Expanded(
-                  flex: 5,
-                  child: _panel(
-                    header: 'MÉTRICAS RÁPIDAS',
-                    icon: Icons.analytics_outlined,
-                    child: _buildQuickStats(
-                      activosConValor,
-                      valorTotalUsd,
-                      market,
-                    ),
+                // Resumen y la torta de activos
+                SizedBox(
+                  width: 260,
+                  child: Column(
+                    children: [
+                      // Panel: RESUMEN TOTAL
+                      Expanded(
+                        flex: 5,
+                        child: _panel(
+                          header: 'RESUMEN DEL PORTAFOLIO',
+                          icon: Icons.account_balance_wallet_rounded,
+                          child: _buildSummaryContent(
+                            valorTotalUsd,
+                            activosConValor.length,
+                            mejorActivo,
+                            mejorValor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      // Panel: DISTRIBUCIÓN (Donut)
+                      Expanded(
+                        flex: 4,
+                        child: _panel(
+                          header: 'DISTRIBUCIÓN DE ACTIVOS',
+                          icon: Icons.pie_chart_outline_rounded,
+                          child: _buildDonutChart(
+                            activosConValor,
+                            valorTotalUsd,
+                            market,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 10),
+
+                const SizedBox(width: 10),
+
+                // Lista principal de lo que tiene el usuario
                 Expanded(
-                  flex: 4,
                   child: _panel(
-                    header: 'CONVERSIONES',
-                    icon: Icons.currency_exchange_rounded,
-                    child: _buildConversions(valorTotalUsd),
+                    header: 'MIS ACTIVOS',
+                    icon: Icons.list_alt_rounded,
+                    headerExtra: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                        '${activosConValor.length} activos',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    child: _buildAssetList(activosConValor, valorTotalUsd, market),
+                  ),
+                ),
+
+                const SizedBox(width: 10),
+
+                // Estadísticas rápidas
+                SizedBox(
+                  width: 220,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: _panel(
+                          header: 'MÉTRICAS RÁPIDAS',
+                          icon: Icons.analytics_outlined,
+                          child: _buildQuickStats(
+                            activosConValor,
+                            valorTotalUsd,
+                            market,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Expanded(
+                        flex: 4,
+                        child: _panel(
+                          header: 'CONVERSIONES',
+                          icon: Icons.currency_exchange_rounded,
+                          child: _buildConversions(valorTotalUsd),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // RESUMEN TOTAL
-  // ══════════════════════════════════════════════════════════════
+  // Información detallada sobre el balance total y el activo más fuerte
+
   Widget _buildSummaryContent(
     double total,
     int numActivos,
@@ -316,9 +387,8 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // DONUT CHART
-  // ══════════════════════════════════════════════════════════════
+  // Gráfico de pastel para ver qué porcentaje ocupa cada moneda
+
   Widget _buildDonutChart(
     List<MapEntry<String, double>> activos,
     double total,
@@ -385,9 +455,8 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // LISTA DE ACTIVOS
-  // ══════════════════════════════════════════════════════════════
+  // Lista con todas las criptos que tienes compradas y sus valores
+
   Widget _buildAssetList(
     List<MapEntry<String, double>> activos,
     double total,
@@ -524,9 +593,8 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // MÉTRICAS RÁPIDAS
-  // ══════════════════════════════════════════════════════════════
+  // Métricas de las 3 monedas con más peso en tu cuenta
+
   Widget _buildQuickStats(
     List<MapEntry<String, double>> activos,
     double total,
@@ -662,9 +730,8 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // CONVERSIONES
-  // ══════════════════════════════════════════════════════════════
+  // Conversión rápida del total a dólares, petros y bolívares
+
   Widget _buildConversions(double total) {
     return Padding(
       padding: const EdgeInsets.all(10),
@@ -781,9 +848,8 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // UTILIDADES (igual que el dashboard)
-  // ══════════════════════════════════════════════════════════════
+  // Panel base con efecto de desenfoque y cabecera estándar
+
   Widget _panel({
     required String header,
     required IconData icon,
