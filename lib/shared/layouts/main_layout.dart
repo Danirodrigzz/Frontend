@@ -16,26 +16,50 @@ class MainLayout extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final rutaActual = GoRouterState.of(context).uri.path;
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < 1200;
+
+    final rutas = ['/', '/portfolio', '/exchange', '/history', '/settings'];
+    final currentIndex = rutas.indexOf(rutaActual);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-          // ── Barra de navegación superior ─────────────────────
-          _buildTopNav(context, authState, rutaActual, ref),
+          // Cabecera principal con el logo y el menú de navegación
+          _buildTopNav(context, authState, rutaActual, ref, isMobile),
 
-          // ── Contenido principal ──────────────────────────────
+          // Espacio donde se cargan las diferentes páginas de la app
           Expanded(child: child),
         ],
       ),
+      bottomNavigationBar: isMobile && authState.usuario != null
+          ? BottomNavigationBar(
+              currentIndex: currentIndex != -1 ? currentIndex : 0,
+              onTap: (index) => context.go(rutas[index]),
+              backgroundColor: AppColors.surfaceHeader,
+              selectedItemColor: AppColors.primary,
+              unselectedItemColor: AppColors.onSurfaceMuted,
+              type: BottomNavigationBarType.fixed,
+              selectedFontSize: 10,
+              unselectedFontSize: 10,
+              items: const [
+                BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded), label: 'Resumen'),
+                BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet_rounded), label: 'Billetera'),
+                BottomNavigationBarItem(icon: Icon(Icons.swap_horizontal_circle_rounded), label: 'Intercambio'),
+                BottomNavigationBarItem(icon: Icon(Icons.history_rounded), label: 'Historial'),
+                BottomNavigationBarItem(icon: Icon(Icons.settings_suggest_rounded), label: 'Ajustes'),
+              ],
+            )
+          : null,
     );
   }
 
   /// Barra superior con logo, tabs de navegación y perfil
-  Widget _buildTopNav(BuildContext context, AuthState authState, String rutaActual, WidgetRef ref) {
+  Widget _buildTopNav(BuildContext context, AuthState authState, String rutaActual, WidgetRef ref, bool isMobile) {
     return Container(
       height: 52,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 24),
       decoration: BoxDecoration(
         color: AppColors.surfaceHeader,
         border: Border(
@@ -47,12 +71,12 @@ class MainLayout extends ConsumerWidget {
           children: [
             // Logo ChinChin (Izquierda)
             SizedBox(
-              width: 180,
+              width: isMobile ? 120 : 180,
               child: GestureDetector(
                 onTap: () => context.go('/'),
                 child: Image.asset(
                   'assets/images/logo.png',
-                  height: 28,
+                  height: isMobile ? 22 : 28,
                   fit: BoxFit.contain,
                   color: AppColors.primary,
                   colorBlendMode: BlendMode.srcIn,
@@ -60,21 +84,24 @@ class MainLayout extends ConsumerWidget {
               ),
             ),
 
-            const Spacer(),
-
-            // ── Tabs de navegación con SEGUIMIENTO DE CURSOR (HOVER) ──
-            _InteractiveTabs(rutaActual: rutaActual),
-
-            const Spacer(),
+            if (!isMobile) ...[
+              const Spacer(),
+              // Botones de navegación con efectos visuales al pasar el mouse
+              _InteractiveTabs(rutaActual: rutaActual),
+              const Spacer(),
+            ] else 
+              const Spacer(),
 
             // Perfil / Auth (Derecha)
             SizedBox(
-              width: 180,
+              width: isMobile ? 120 : 180,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  _statusIcons(),
-                  const SizedBox(width: 12),
+                  if (!isMobile) ...[
+                    _statusIcons(),
+                    const SizedBox(width: 12),
+                  ],
                   if (authState.usuario != null)
                     _userBadge(context, authState, ref)
                   else

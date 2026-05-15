@@ -6,7 +6,7 @@ import '../constants/app_constants.dart';
 class Formatters {
   Formatters._();
 
-  // ── Formato de moneda USD ────────────────────────────────────
+  // Formato de moneda USD
   static final _usdFormat = NumberFormat.currency(
     symbol: '\$',
     decimalDigits: 2,
@@ -28,7 +28,7 @@ class Formatters {
     }
   }
 
-  // ── Formato de Petro y Bolívares ─────────────────────────────
+  // Formato de Petro y Bolívares
   /// Convierte USD a PTR y formatea
   static String usdToPtr(double usdValue) {
     final ptr = usdValue / AppConstants.ptrToUsd;
@@ -41,14 +41,14 @@ class Formatters {
     return '${NumberFormat('#,##0.00', 'en_US').format(bs)} Bs';
   }
 
-  // ── Formato de porcentaje ────────────────────────────────────
+  // Formato de porcentaje
   /// Formatea un porcentaje con signo (ej: +2.45% o -1.23%)
   static String percentage(double value) {
     final sign = value >= 0 ? '+' : '';
     return '$sign${value.toStringAsFixed(2)}%';
   }
 
-  // ── Formato de volumen ───────────────────────────────────────
+  // Formato de volumen
   /// Formatea volumen con sufijos K, M, B para legibilidad
   static String volume(double value) {
     if (value >= 1e9) {
@@ -61,7 +61,7 @@ class Formatters {
     return value.toStringAsFixed(2);
   }
 
-  // ── Formato de cantidad cripto ───────────────────────────────
+  // Formato de cantidad cripto
   /// Formatea una cantidad de criptomoneda (ej: 0.00054321 BTC)
   static String cryptoAmount(double value, String symbol) {
     if (value >= 1000) {
@@ -73,7 +73,7 @@ class Formatters {
     }
   }
 
-  // ── Formato de fecha y hora ──────────────────────────────────
+  // Formato de fecha y hora
   /// Formato completo: 14 May 2026, 17:30
   static String dateTimeFull(DateTime date) {
     try {

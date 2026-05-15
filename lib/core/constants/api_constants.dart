@@ -2,7 +2,7 @@
 class ApiConstants {
   ApiConstants._();
 
-  // ── Binance API (pública, sin autenticación) ─────────────────
+  //Binance API (pública, sin autenticación)
   static const String binanceBaseUrl = 'https://api.binance.com';
 
   /// Precio actual de un par de criptomonedas
@@ -17,7 +17,7 @@ class ApiConstants {
   /// Ejemplo: /api/v3/klines?symbol=BTCUSDT&interval=1h&limit=24
   static const String klines = '/api/v3/klines';
 
-  // ── Intervalos de velas disponibles ──────────────────────────
+  // Intervalos de velas disponibles
   static const String interval1h = '1h';
   static const String interval4h = '4h';
   static const String interval1d = '1d';

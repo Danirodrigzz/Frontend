@@ -3,32 +3,32 @@
 class AppConstants {
   AppConstants._();
 
-  // ── Valores fijos de moneda (según enunciado de la prueba) ───
+  // Valores fijos de moneda (según enunciado de la prueba)
   /// 1 PTR (Petro) = 60 USD
   static const double ptrToUsd = 60.0;
 
   /// 37.85 BS (Bolívares) = 1 USD
   static const double bsPerUsd = 37.85;
 
-  // ── Intervalos de actualización ──────────────────────────────
+  // Intervalos de actualización
   /// Intervalo de actualización de precios (en segundos)
   static const int refreshIntervalSeconds = 30;
 
   /// Tiempo que se muestra la tasa de cambio antes de expirar (en segundos)
   static const int exchangeRateExpirySeconds = 60;
 
-  // ── Configuración de la app ──────────────────────────────────
+  // Configuración de la app
   static const String appName = 'ChinChin Intercambio';
   static const String appVersion = '1.0.0';
 
-  // ── Claves de almacenamiento local ───────────────────────────
+  // Claves de almacenamiento local
   static const String tokenKey = 'auth_token';
   static const String userKey = 'user_data';
   static const String balancesKey = 'user_balances';
   static const String historyKey = 'transaction_history';
   static const String settingsKey = 'app_settings';
 
-  // ── Pares de criptomonedas a mostrar ─────────────────────────
+  // Pares de criptomonedas a mostrar
   /// Símbolos principales que se consultan contra USDT en Binance
   static const List<String> tradingPairs = [
     'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT',
@@ -74,8 +74,8 @@ class AppConstants {
     'NEARUSDT': 'NEAR',
   };
 
-  // ── Saldos iniciales del usuario ─────────────────────────────
-  /// Saldos estáticos que el usuario tiene al comenzar
+  // Saldos iniciales del usuario
+
   static const Map<String, double> initialBalances = {
     'BTC': 0.5,
     'ETH': 2.0,

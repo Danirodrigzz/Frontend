@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTypography {
   AppTypography._();
 
-  // ── Encabezados ──────────────────────────────────────────────
+  // Encabezados
   static TextStyle get h1 => GoogleFonts.inter(
     fontSize: 32,
     fontWeight: FontWeight.w700,
@@ -34,7 +34,7 @@ class AppTypography {
     height: 1.4,
   );
 
-  // ── Cuerpo de texto ──────────────────────────────────────────
+  // Cuerpo de texto
   static TextStyle get bodyLarge => GoogleFonts.inter(
     fontSize: 16,
     fontWeight: FontWeight.w400,
@@ -53,7 +53,7 @@ class AppTypography {
     height: 1.4,
   );
 
-  // ── Etiquetas (labels) ───────────────────────────────────────
+  // Etiquetas (labels)
   static TextStyle get labelLarge => GoogleFonts.inter(
     fontSize: 14,
     fontWeight: FontWeight.w600,
@@ -75,7 +75,7 @@ class AppTypography {
     height: 1.3,
   );
 
-  // ── Datos numéricos / financieros ────────────────────────────
+  // Datos numéricos / financieros
   /// Para precios, saldos y valores monetarios
   static TextStyle get priceLarge => GoogleFonts.jetBrainsMono(
     fontSize: 28,
@@ -103,7 +103,7 @@ class AppTypography {
     height: 1.2,
   );
 
-  // ── Botones ──────────────────────────────────────────────────
+  // Botones
   static TextStyle get button => GoogleFonts.inter(
     fontSize: 15,
     fontWeight: FontWeight.w600,

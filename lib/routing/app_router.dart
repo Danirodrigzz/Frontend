@@ -51,7 +51,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
     // Definición de las rutas
     routes: [
-      // ── Rutas públicas (sin layout) ─────────────────────
+      // Rutas públicas (sin layout)
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginPage(),
@@ -61,7 +61,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const RegisterPage(),
       ),
 
-      // ── Rutas protegidas (con layout principal) ─────────
+      // Rutas protegidas (con layout principal)
       ShellRoute(
         builder: (context, state, child) => MainLayout(child: child),
         routes: [

@@ -7,7 +7,7 @@ import 'app_colors.dart';
 class AppDecorations {
   AppDecorations._();
 
-  // ── Glassmorphism premium ────────────────────────────────────
+  // Glassmorphism premium
   /// Decoración base de vidrio esmerilado con tinte violeta
   static BoxDecoration glass({
     double borderRadius = 16,
@@ -45,7 +45,7 @@ class AppDecorations {
     );
   }
 
-  // ── Sombras con glow ─────────────────────────────────────────
+  // Sombras con glow
   /// Glow violeta para elementos primarios
   static List<BoxShadow> glowPrimary({double intensity = 0.3}) {
     return [
@@ -79,7 +79,7 @@ class AppDecorations {
     ),
   ];
 
-  // ── Contenedores de superficie ───────────────────────────────
+  // Contenedores de superficie
   /// Contenedor de superficie elevada con borde sutil
   static BoxDecoration surfaceCard({double borderRadius = 14}) {
     return BoxDecoration(
@@ -106,7 +106,7 @@ class AppDecorations {
     );
   }
 
-  // ── Filtros de blur ──────────────────────────────────────────
+  // Filtros de blur
   /// Filtro de blur para glassmorphism estándar
   static ImageFilter get blurFilter => ImageFilter.blur(sigmaX: 14, sigmaY: 14);
 
