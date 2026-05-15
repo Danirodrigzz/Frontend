@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -70,7 +72,6 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     _cargarConfiguracion();
   }
 
-  /// Carga la configuración guardada del almacenamiento local
   Future<void> _cargarConfiguracion() async {
     final prefs = await SharedPreferences.getInstance();
     final data = prefs.getString(AppConstants.settingsKey);
@@ -81,7 +82,6 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     }
   }
 
-  /// Guarda la configuración actual en el almacenamiento
   Future<void> _guardar() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(AppConstants.settingsKey, jsonEncode(state.toJson()));
@@ -113,8 +113,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   }
 }
 
-/// Pantalla de configuración de la aplicación.
-/// Permite ocultar/mostrar secciones y controlar el auto-refresco.
+/// Pantalla de configuración mejorada con estética de dashboard premium.
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
@@ -122,215 +121,229 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Encabezado ───────────────────────────────────
-          Text(
-            'Configuración',
-            style: AppTypography.h2.copyWith(color: AppColors.onSurface),
-          )
-              .animate()
-              .fadeIn(duration: 400.ms)
-              .slideX(begin: -0.1, end: 0),
-          const SizedBox(height: 8),
-          Text(
-            'Personaliza tu experiencia en ChinChin Exchange',
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 28),
-
-          // ── Sección de visibilidad ──────────────────────
-          _buildSectionTitle('Secciones visibles', Icons.visibility_rounded, 0),
-          const SizedBox(height: 12),
-
-          _buildToggle(
-            ref: ref,
-            titulo: 'Mercado',
-            descripcion: 'Mostrar la tabla de criptomonedas disponibles',
-            icono: Icons.show_chart_rounded,
-            valor: settings.mostrarMercado,
-            onChanged: (v) => ref.read(settingsProvider.notifier).toggleMercado(v),
-            index: 1,
-          ),
-
-          _buildToggle(
-            ref: ref,
-            titulo: 'Portafolio',
-            descripcion: 'Mostrar el resumen de tus activos',
-            icono: Icons.account_balance_wallet_rounded,
-            valor: settings.mostrarPortafolio,
-            onChanged: (v) => ref.read(settingsProvider.notifier).togglePortafolio(v),
-            index: 2,
-          ),
-
-          _buildToggle(
-            ref: ref,
-            titulo: 'Historial',
-            descripcion: 'Mostrar el historial de transacciones',
-            icono: Icons.history_rounded,
-            valor: settings.mostrarHistorial,
-            onChanged: (v) => ref.read(settingsProvider.notifier).toggleHistorial(v),
-            index: 3,
-          ),
-
-          const SizedBox(height: 28),
-
-          // ── Sección de actualización ─────────────────────
-          _buildSectionTitle('Actualización de datos', Icons.refresh_rounded, 4),
-          const SizedBox(height: 12),
-
-          _buildToggle(
-            ref: ref,
-            titulo: 'Auto-refresco',
-            descripcion: 'Actualizar precios automáticamente',
-            icono: Icons.autorenew_rounded,
-            valor: settings.autoRefresh,
-            onChanged: (v) => ref.read(settingsProvider.notifier).toggleAutoRefresh(v),
-            index: 5,
-          ),
-
-          if (settings.autoRefresh) ...[
-            const SizedBox(height: 12),
-            _buildIntervalSelector(ref, settings),
-          ],
-
-          const SizedBox(height: 28),
-
-          // ── Información de la app ────────────────────────
-          _buildSectionTitle('Acerca de', Icons.info_outline_rounded, 6),
-          const SizedBox(height: 12),
-
-          GlassmorphicCard(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(12),
+    return Stack(
+      children: [
+        _buildBackgroundOrbs(),
+        SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── ENCABEZADO ───────────────────────────────────
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Panel de Configuración',
+                        style: AppTypography.h3.copyWith(color: AppColors.onSurface),
                       ),
-                      child: const Icon(
-                        Icons.currency_exchange_rounded,
-                        color: AppColors.onPrimary,
-                        size: 24,
+                      Text(
+                        'Personaliza tu interfaz y preferencias del sistema',
+                        style: AppTypography.labelSmall.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                          fontSize: 10,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 14),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    ],
+                  ),
+                  _statusRow('SISTEMA', 'ESTABLE', AppColors.success),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ═══ COLUMNA IZQUIERDA (Info & Acerca de) ════════════
+                  SizedBox(
+                    width: 280,
+                    child: Column(
                       children: [
-                        Text(
-                          AppConstants.appName,
-                          style: AppTypography.h4.copyWith(
-                            color: AppColors.onSurface,
+                        _panel(
+                          header: 'INFORMACIÓN',
+                          icon: Icons.info_outline_rounded,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        gradient: AppColors.primaryGradient,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8),
+                                        child: SvgPicture.asset(
+                                          'assets/images/logo-2.svg',
+                                          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(AppConstants.appName, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                                        Text('Versión ${AppConstants.appVersion}', style: TextStyle(color: AppColors.onSurfaceMuted, fontSize: 10)),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Aplicación premium de intercambio de activos con datos sincronizados en tiempo real.',
+                                  style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceVariant, height: 1.5, fontSize: 10),
+                                ),
+                                const SizedBox(height: 16),
+                                _buildTechChips(),
+                              ],
+                            ),
                           ),
                         ),
-                        Text(
-                          'Versión ${AppConstants.appVersion}',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.onSurfaceVariant,
+                        const SizedBox(height: 12),
+                        _panel(
+                          header: 'DISPOSITIVO',
+                          icon: Icons.devices_rounded,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                _infoRow('Almacenamiento', 'Local (SharedPrefs)', AppColors.onSurfaceVariant),
+                                const SizedBox(height: 10),
+                                _infoRow('Plataforma', 'Web (Flutter)', AppColors.primary),
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Prueba técnica de desarrollo frontend para Chinchin. '
-                  'Aplicación de intercambio de criptomonedas con datos '
-                  'en tiempo real de la API de Binance.',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                    height: 1.6,
                   ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    _buildInfoChip('Flutter', Icons.flutter_dash),
-                    const SizedBox(width: 8),
-                    _buildInfoChip('Riverpod', Icons.data_object_rounded),
-                    const SizedBox(width: 8),
-                    _buildInfoChip('Binance API', Icons.api_rounded),
-                  ],
-                ),
+
+                  const SizedBox(width: 20),
+
+                  // ═══ COLUMNA DERECHA (Opciones de Configuración) ═════
+                  Expanded(
+                    child: Column(
+                      children: [
+                        // --- Grupo: Apariencia ---
+                        _buildGroup(
+                          title: 'VISIBILIDAD DE SECCIONES',
+                          icon: Icons.visibility_rounded,
+                          children: [
+                            _buildToggle(
+                              titulo: 'Panel de Mercado',
+                              descripcion: 'Lista interactiva de precios actuales',
+                              icono: Icons.analytics_outlined,
+                              valor: settings.mostrarMercado,
+                              onChanged: (v) => ref.read(settingsProvider.notifier).toggleMercado(v),
+                            ),
+                            _buildToggle(
+                              titulo: 'Resumen de Portafolio',
+                              descripcion: 'Visualización de tus activos totales',
+                              icono: Icons.wallet_rounded,
+                              valor: settings.mostrarPortafolio,
+                              onChanged: (v) => ref.read(settingsProvider.notifier).togglePortafolio(v),
+                            ),
+                            _buildToggle(
+                              titulo: 'Historial de Actividad',
+                              descripcion: 'Registro de tus operaciones pasadas',
+                              icono: Icons.history_edu_rounded,
+                              valor: settings.mostrarHistorial,
+                              onChanged: (v) => ref.read(settingsProvider.notifier).toggleHistorial(v),
+                            ),
+                          ],
+                        ),
+                        
+                        const SizedBox(height: 16),
+
+                        // --- Grupo: Actualización ---
+                        _buildGroup(
+                          title: 'SINCRONIZACIÓN DE DATOS',
+                          icon: Icons.sync_rounded,
+                          children: [
+                            _buildToggle(
+                              titulo: 'Auto-refresco de Precios',
+                              descripcion: 'Mantener datos actualizados vía API',
+                              icono: Icons.bolt_rounded,
+                              valor: settings.autoRefresh,
+                              onChanged: (v) => ref.read(settingsProvider.notifier).toggleAutoRefresh(v),
+                            ),
+                            if (settings.autoRefresh) ...[
+                              const Divider(height: 1, color: Colors.white10),
+                              _buildIntervalSelector(ref, settings),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGroup({required String title, required IconData icon, required List<Widget> children}) {
+    return GlassmorphicCard(
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(icon, color: AppColors.primary, size: 16),
+                const SizedBox(width: 10),
+                Text(title, style: TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
               ],
             ),
-          )
-              .animate()
-              .fadeIn(delay: 400.ms, duration: 500.ms)
-              .slideY(begin: 0.05, end: 0, delay: 400.ms),
+          ),
+          ...children,
         ],
       ),
     );
   }
 
-  /// Título de sección con icono y animación
-  Widget _buildSectionTitle(String titulo, IconData icono, int index) {
-    return Row(
-      children: [
-        Icon(icono, color: AppColors.primary, size: 20),
-        const SizedBox(width: 10),
-        Text(
-          titulo,
-          style: AppTypography.h4.copyWith(color: AppColors.onSurface),
-        ),
-      ],
-    )
-        .animate()
-        .fadeIn(delay: (100 + index * 50).ms, duration: 400.ms);
-  }
-
-  /// Toggle switch con tarjeta glassmorphic
   Widget _buildToggle({
-    required WidgetRef ref,
     required String titulo,
     required String descripcion,
     required IconData icono,
     required bool valor,
     required ValueChanged<bool> onChanged,
-    required int index,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: GlassmorphicCard(
+    return InkWell(
+      onTap: () => onChanged(!valor),
+      child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            Icon(
-              icono,
-              color: valor ? AppColors.primary : AppColors.onSurfaceMuted,
-              size: 22,
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: valor ? AppColors.primary.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icono, color: valor ? AppColors.primary : AppColors.onSurfaceMuted, size: 20),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    titulo,
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: AppColors.onSurface,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    descripcion,
-                    style: AppTypography.labelSmall.copyWith(
-                      color: AppColors.onSurfaceMuted,
-                    ),
-                  ),
+                  Text(titulo, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                  Text(descripcion, style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceMuted, fontSize: 10)),
                 ],
               ),
             ),
@@ -340,70 +353,43 @@ class SettingsPage extends ConsumerWidget {
               activeColor: AppColors.primary,
               activeTrackColor: AppColors.primary.withValues(alpha: 0.3),
               inactiveThumbColor: AppColors.onSurfaceMuted,
-              inactiveTrackColor: AppColors.surfaceElevated,
+              inactiveTrackColor: Colors.white12,
             ),
           ],
         ),
       ),
-    )
-        .animate()
-        .fadeIn(delay: (100 + index * 60).ms, duration: 400.ms)
-        .slideX(begin: 0.05, end: 0, delay: (100 + index * 60).ms);
+    );
   }
 
-  /// Selector de intervalo de actualización con chips
   Widget _buildIntervalSelector(WidgetRef ref, SettingsState settings) {
     final opciones = [15, 30, 60, 120];
-
-    return GlassmorphicCard(
+    return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Intervalo de actualización',
-            style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.onSurface,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text('Frecuencia de actualización', style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceVariant)),
           const SizedBox(height: 12),
           Row(
             children: opciones.map((seg) {
               final estaActivo = settings.intervaloRefresh == seg;
-              final etiqueta = seg < 60 ? '${seg}s' : '${seg ~/ 60}min';
+              final etiqueta = seg < 60 ? '${seg}s' : '${seg ~/ 60}m';
 
               return Padding(
-                padding: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.only(right: 10),
                 child: InkWell(
-                  onTap: () {
-                    ref.read(settingsProvider.notifier).cambiarIntervalo(seg);
-                  },
+                  onTap: () => ref.read(settingsProvider.notifier).cambiarIntervalo(seg),
                   borderRadius: BorderRadius.circular(8),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      color: estaActivo
-                          ? AppColors.primary.withValues(alpha: 0.15)
-                          : AppColors.surfaceElevated,
+                      color: estaActivo ? AppColors.primary.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: estaActivo
-                            ? AppColors.primary.withValues(alpha: 0.5)
-                            : AppColors.border,
-                      ),
+                      border: Border.all(color: estaActivo ? AppColors.primary.withValues(alpha: 0.5) : Colors.white10),
                     ),
                     child: Text(
                       etiqueta,
-                      style: AppTypography.labelMedium.copyWith(
-                        color: estaActivo
-                            ? AppColors.primary
-                            : AppColors.onSurfaceVariant,
-                        fontWeight: estaActivo
-                            ? FontWeight.w700
-                            : FontWeight.w500,
-                      ),
+                      style: TextStyle(color: estaActivo ? AppColors.primary : AppColors.onSurfaceVariant, fontWeight: estaActivo ? FontWeight.w900 : FontWeight.w600, fontSize: 11),
                     ),
                   ),
                 ),
@@ -412,32 +398,116 @@ class SettingsPage extends ConsumerWidget {
           ),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(delay: 350.ms, duration: 400.ms);
+    );
   }
 
-  /// Chip de información con icono
-  Widget _buildInfoChip(String texto, IconData icono) {
+  Widget _buildTechChips() {
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: [
+        _miniChip('Flutter', Icons.flutter_dash),
+        _miniChip('Riverpod', Icons.data_object),
+        _miniChip('Binance', Icons.api),
+      ],
+    );
+  }
+
+  Widget _miniChip(String label, IconData icon) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(6)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 10, color: AppColors.primary),
+          const SizedBox(width: 4),
+          Text(label, style: const TextStyle(fontSize: 9, color: Colors.white, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value, Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceMuted)),
+        Text(value, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  Widget _statusRow(String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icono, color: AppColors.primary, size: 14),
+          Container(width: 6, height: 6, decoration: BoxDecoration(shape: BoxShape.circle, color: color)),
+          const SizedBox(width: 8),
+          Text(label, style: TextStyle(color: color.withValues(alpha: 0.7), fontSize: 8, fontWeight: FontWeight.w800)),
           const SizedBox(width: 4),
-          Text(
-            texto,
-            style: AppTypography.labelSmall.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
-          ),
+          Text(value, style: TextStyle(color: color, fontSize: 8, fontWeight: FontWeight.w900)),
         ],
+      ),
+    );
+  }
+
+  Widget _panel({required String header, required IconData icon, required Widget child}) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.03)),
+                child: Row(
+                  children: [
+                    Icon(icon, color: AppColors.primary, size: 12),
+                    const SizedBox(width: 8),
+                    Text(header, style: TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                  ],
+                ),
+              ),
+              child,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBackgroundOrbs() {
+    return Stack(
+      children: [
+        Positioned(top: -50, left: -100, child: _orb(300, AppColors.primary.withValues(alpha: 0.08))),
+        Positioned(bottom: -100, right: -50, child: _orb(250, const Color(0xFF6366F1).withValues(alpha: 0.06))),
+      ],
+    );
+  }
+
+  Widget _orb(double size, Color color) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(colors: [color, color.withValues(alpha: 0.4), Colors.transparent]),
       ),
     );
   }

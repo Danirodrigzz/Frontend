@@ -42,9 +42,15 @@ class _MarketPageState extends ConsumerState<MarketPage> {
     setState(() => _loadingChart = true);
     try {
       final klines = await _marketRepo.obtenerKlines(
-        symbol: symbol, interval: _chartInterval, limit: 48,
+        symbol: symbol,
+        interval: _chartInterval,
+        limit: 48,
       );
-      if (mounted) setState(() { _chartData = klines; _loadingChart = false; });
+      if (mounted)
+        setState(() {
+          _chartData = klines;
+          _loadingChart = false;
+        });
     } catch (_) {
       if (mounted) setState(() => _loadingChart = false);
     }
@@ -58,10 +64,13 @@ class _MarketPageState extends ConsumerState<MarketPage> {
       _loadChart(state.criptos.first.symbol);
     }
     if (state.estaCargando && state.criptos.isEmpty) return _buildLoading();
-    if (state.error != null && state.criptos.isEmpty) return _buildError(state.error!);
+    if (state.error != null && state.criptos.isEmpty)
+      return _buildError(state.error!);
 
-    final selected = state.criptos.isNotEmpty && _selectedCryptoIndex < state.criptos.length
-        ? state.criptos[_selectedCryptoIndex] : null;
+    final selected =
+        state.criptos.isNotEmpty && _selectedCryptoIndex < state.criptos.length
+        ? state.criptos[_selectedCryptoIndex]
+        : null;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -87,11 +96,8 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                       Expanded(flex: 4, child: _buildTrendingPanel(state)),
                     ],
                   ),
-                ).animate()
-                 .fadeIn(duration: 800.ms, curve: Curves.easeOut)
-                 .blur(begin: const Offset(10, 10), end: Offset.zero, duration: 1000.ms)
-                 .shimmer(delay: 400.ms, duration: 1200.ms, color: Colors.white.withValues(alpha: 0.1)),
-                
+                ),
+
                 const SizedBox(width: 10),
 
                 // ═══ COLUMNA CENTRAL ═════════════════════════════════
@@ -100,18 +106,18 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                     child: Column(
                       children: [
                         // Panel: GRÁFICA PRINCIPAL (grande)
-                        Expanded(flex: 6, child: _buildMainChartPanel(selected)),
+                        Expanded(
+                          flex: 6,
+                          child: _buildMainChartPanel(selected),
+                        ),
                         const SizedBox(height: 10),
                         // Panel: COMMUNITY INSIGHTS
                         Expanded(flex: 2, child: _buildCommunityPanel(state)),
                       ],
                     ),
                   ),
-                ).animate()
-                 .fadeIn(duration: 800.ms, delay: 200.ms)
-                 .scale(begin: const Offset(0.98, 0.98), end: const Offset(1, 1), curve: Curves.elasticOut, duration: 1200.ms)
-                 .shimmer(delay: 600.ms, duration: 1500.ms, color: AppColors.primary.withValues(alpha: 0.2)),
-                
+                ),
+
                 const SizedBox(width: 10),
 
                 // ═══ COLUMNA DERECHA ═════════════════════════════════
@@ -126,10 +132,7 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                       Expanded(flex: 4, child: _buildSentimentPanel(state)),
                     ],
                   ),
-                ).animate()
-                 .fadeIn(duration: 800.ms, delay: 400.ms)
-                 .blur(begin: const Offset(10, 10), end: Offset.zero, duration: 1000.ms)
-                 .shimmer(delay: 800.ms, duration: 1200.ms, color: Colors.white.withValues(alpha: 0.1)),
+                ),
               ],
             ),
           ),
@@ -172,35 +175,47 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        PieChart(PieChartData(
-                          sectionsSpace: 2,
-                          centerSpaceRadius: 32,
-                          startDegreeOffset: -90,
-                          sections: List.generate(
-                            min(state.criptos.length, 7),
-                            (i) {
-                              final total = state.criptos.fold<double>(
-                                  0, (s, c) => s + c.quoteVolume);
-                              final pct = total > 0
-                                  ? (state.criptos[i].quoteVolume / total * 100)
-                                  : 0.0;
-                              final icon = _cryptoIcons[state.criptos[i].shortSymbol];
-                              return PieChartSectionData(
-                                color: icon?.color ?? AppColors.primary,
-                                value: pct,
-                                radius: pct > 20 ? 22 : 18,
-                                showTitle: pct > 5,
-                                title: '${pct.toStringAsFixed(0)}%',
-                                titleStyle: const TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                  shadows: [Shadow(blurRadius: 4, color: Colors.black54)],
-                                ),
-                              );
-                            },
+                        PieChart(
+                          PieChartData(
+                            sectionsSpace: 2,
+                            centerSpaceRadius: 32,
+                            startDegreeOffset: -90,
+                            sections: List.generate(
+                              min(state.criptos.length, 7),
+                              (i) {
+                                final total = state.criptos.fold<double>(
+                                  0,
+                                  (s, c) => s + c.quoteVolume,
+                                );
+                                final pct = total > 0
+                                    ? (state.criptos[i].quoteVolume /
+                                          total *
+                                          100)
+                                    : 0.0;
+                                final icon =
+                                    _cryptoIcons[state.criptos[i].shortSymbol];
+                                return PieChartSectionData(
+                                  color: icon?.color ?? AppColors.primary,
+                                  value: pct,
+                                  radius: pct > 20 ? 22 : 18,
+                                  showTitle: pct > 5,
+                                  title: '${pct.toStringAsFixed(0)}%',
+                                  titleStyle: const TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                    shadows: [
+                                      Shadow(
+                                        blurRadius: 4,
+                                        color: Colors.black54,
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        )),
+                        ),
                         // Centro del donut
                         Column(
                           mainAxisSize: MainAxisSize.min,
@@ -230,7 +245,10 @@ class _MarketPageState extends ConsumerState<MarketPage> {
           // Divider sutil
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Divider(color: AppColors.border.withValues(alpha: 0.3), height: 1),
+            child: Divider(
+              color: AppColors.border.withValues(alpha: 0.3),
+              height: 1,
+            ),
           ),
 
           // Lista de criptos con iconos de marca
@@ -254,14 +272,19 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                   borderRadius: BorderRadius.circular(6),
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 2),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 7,
+                    ),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.primary.withValues(alpha: 0.08)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(6),
                       border: isSelected
-                          ? Border.all(color: AppColors.primary.withValues(alpha: 0.15))
+                          ? Border.all(
+                              color: AppColors.primary.withValues(alpha: 0.15),
+                            )
                           : null,
                     ),
                     child: Row(
@@ -273,7 +296,12 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                           ),
-                          child: _buildCryptoLogo(crypto.shortSymbol, brandColor),
+                          child: ClipOval(
+                            child: _buildCryptoLogo(
+                              crypto.shortSymbol,
+                              brandColor,
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 12),
                         // Nombre y símbolo
@@ -301,16 +329,24 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                         ),
                         // Cambio %
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: (esPositivo ? AppColors.success : AppColors.error)
-                                .withValues(alpha: 0.1),
+                            color:
+                                (esPositivo
+                                        ? AppColors.success
+                                        : AppColors.error)
+                                    .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(3),
                           ),
                           child: Text(
                             '${esPositivo ? '+' : ''}${crypto.priceChangePercent.toStringAsFixed(1)}%',
                             style: TextStyle(
-                              color: esPositivo ? AppColors.success : AppColors.error,
+                              color: esPositivo
+                                  ? AppColors.success
+                                  : AppColors.error,
                               fontSize: 9,
                               fontWeight: FontWeight.w700,
                             ),
@@ -358,17 +394,29 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.auto_graph_rounded, size: 12, color: AppColors.primary),
+                        Icon(
+                          Icons.auto_graph_rounded,
+                          size: 12,
+                          color: AppColors.primary,
+                        ),
                         const SizedBox(width: 6),
-                        Text(crypto.name, style: TextStyle(
-                          color: AppColors.onSurface, fontSize: 11, fontWeight: FontWeight.w600,
-                        )),
+                        Text(
+                          crypto.name,
+                          style: TextStyle(
+                            color: AppColors.onSurface,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${crypto.shortSymbol} • \$${Formatters.cryptoPrice(crypto.price)} • ${Formatters.percentage(crypto.priceChangePercent)}',
-                      style: TextStyle(color: AppColors.onSurfaceMuted, fontSize: 9),
+                      style: TextStyle(
+                        color: AppColors.onSurfaceMuted,
+                        fontSize: 9,
+                      ),
                     ),
                   ],
                 ),
@@ -406,7 +454,9 @@ class _MarketPageState extends ConsumerState<MarketPage> {
             child: Text(
               'VOLUMEN DE TOKENS EN TIEMPO REAL',
               style: TextStyle(
-                color: AppColors.onSurfaceMuted, fontSize: 9, letterSpacing: 1,
+                color: AppColors.onSurfaceMuted,
+                fontSize: 9,
+                letterSpacing: 1,
               ),
             ),
           ),
@@ -420,7 +470,8 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                   Text(
                     '\$${Formatters.cryptoPrice(crypto.price)}',
                     style: AppTypography.priceLarge.copyWith(
-                      color: AppColors.onSurface, fontSize: 26,
+                      color: AppColors.onSurface,
+                      fontSize: 26,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -433,10 +484,20 @@ class _MarketPageState extends ConsumerState<MarketPage> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
               child: _loadingChart
-                  ? Center(child: SpinKitPulsingGrid(color: AppColors.primary, size: 32))
+                  ? Center(
+                      child: SpinKitPulsingGrid(
+                        color: AppColors.primary,
+                        size: 32,
+                      ),
+                    )
                   : _chartData.isEmpty
-                      ? Center(child: Text('Sin datos', style: TextStyle(color: AppColors.onSurfaceMuted)))
-                      : _buildMainChart(),
+                  ? Center(
+                      child: Text(
+                        'Sin datos',
+                        style: TextStyle(color: AppColors.onSurfaceMuted),
+                      ),
+                    )
+                  : _buildMainChart(),
             ),
           ),
         ],
@@ -452,30 +513,42 @@ class _MarketPageState extends ConsumerState<MarketPage> {
         onTap: () {
           setState(() => _chartInterval = value);
           final state = ref.read(marketProvider);
-          if (state.criptos.isNotEmpty) _loadChart(state.criptos[_selectedCryptoIndex].symbol);
+          if (state.criptos.isNotEmpty)
+            _loadChart(state.criptos[_selectedCryptoIndex].symbol);
         },
         borderRadius: BorderRadius.circular(4),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: active ? AppColors.primary.withValues(alpha: 0.15) : Colors.transparent,
+            color: active
+                ? AppColors.primary.withValues(alpha: 0.15)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(4),
             border: Border.all(
-              color: active ? AppColors.primary.withValues(alpha: 0.3) : AppColors.border,
+              color: active
+                  ? AppColors.primary.withValues(alpha: 0.3)
+                  : AppColors.border,
             ),
           ),
-          child: Text(label, style: TextStyle(
-            color: active ? AppColors.primary : AppColors.onSurfaceMuted,
-            fontSize: 10, fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-          )),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: active ? AppColors.primary : AppColors.onSurfaceMuted,
+              fontSize: 10,
+              fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
         ),
       ),
     );
   }
 
   Widget _buildMainChart() {
-    final spots = _chartData.asMap().entries
-        .map((e) => FlSpot(e.key.toDouble(), e.value.close)).toList();
+    final spots = _chartData
+        .asMap()
+        .entries
+        .map((e) => FlSpot(e.key.toDouble(), e.value.close))
+        .toList();
     final prices = _chartData.map((k) => k.close).toList();
     final minY = prices.reduce((a, b) => a < b ? a : b);
     final maxY = prices.reduce((a, b) => a > b ? a : b);
@@ -490,91 +563,113 @@ class _MarketPageState extends ConsumerState<MarketPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(20, (i) => Container(
-              width: 4,
-              height: (20 + (i % 7) * 10).toDouble(),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(1),
+            children: List.generate(
+              20,
+              (i) => Container(
+                width: 4,
+                height: (20 + (i % 7) * 10).toDouble(),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(1),
+                ),
               ),
-            )),
+            ),
           ),
         ),
 
         // ── Capa Principal: Gráfica de Línea ──────────────────────
-        LineChart(LineChartData(
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            horizontalInterval: (maxY - minY) / 3,
-            getDrawingHorizontalLine: (v) => FlLine(
-              color: Colors.white.withValues(alpha: 0.03),
-              strokeWidth: 1,
+        LineChart(
+          LineChartData(
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              horizontalInterval: (maxY - minY) / 3,
+              getDrawingHorizontalLine: (v) => FlLine(
+                color: Colors.white.withValues(alpha: 0.03),
+                strokeWidth: 1,
+              ),
             ),
-          ),
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(sideTitles: SideTitles(
-              showTitles: true, 
-              reservedSize: 55, // Aumentado para evitar saltos de línea
-              getTitlesWidget: (v, m) => Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Text(
-                  Formatters.cryptoPrice(v), 
-                  maxLines: 1,
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    color: AppColors.onSurfaceMuted, 
-                    fontSize: 8,
-                    fontFamily: 'monospace',
+            titlesData: FlTitlesData(
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 55, // Aumentado para evitar saltos de línea
+                  getTitlesWidget: (v, m) => Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Text(
+                      Formatters.cryptoPrice(v),
+                      maxLines: 1,
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        color: AppColors.onSurfaceMuted,
+                        fontSize: 8,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
                   ),
                 ),
               ),
-            )),
-            bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
-          borderData: FlBorderData(show: false),
-          minY: minY - margin, maxY: maxY + margin,
-          
-          lineBarsData: [
-            LineChartBarData(
-              spots: spots,
-              isCurved: true,
-              curveSmoothness: 0.2, // Más técnica, menos curva
-              barWidth: 2,
-              // Gradiente en la propia línea
-              gradient: const LinearGradient(
-                colors: [Color(0xFF007AFF), Color(0xFFA855F7)],
+              bottomTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
               ),
-              isStrokeCapRound: true,
-              dotData: const FlDotData(show: false),
-              belowBarData: BarAreaData(
-                show: true,
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    const Color(0xFF007AFF).withValues(alpha: 0.2),
-                    const Color(0xFFA855F7).withValues(alpha: 0.0),
-                  ],
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+            ),
+            borderData: FlBorderData(show: false),
+            minY: minY - margin,
+            maxY: maxY + margin,
+
+            lineBarsData: [
+              LineChartBarData(
+                spots: spots,
+                isCurved: true,
+                curveSmoothness: 0.2, // Más técnica, menos curva
+                barWidth: 2,
+                // Gradiente en la propia línea
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF007AFF), Color(0xFFA855F7)],
+                ),
+                isStrokeCapRound: true,
+                dotData: const FlDotData(show: false),
+                belowBarData: BarAreaData(
+                  show: true,
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      const Color(0xFF007AFF).withValues(alpha: 0.2),
+                      const Color(0xFFA855F7).withValues(alpha: 0.0),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
-          
-          lineTouchData: LineTouchData(
-            handleBuiltInTouches: true,
-            touchTooltipData: LineTouchTooltipData(
-              getTooltipColor: (_) => const Color(0xFF1A1A2E),
-              tooltipBorder: const BorderSide(color: Color(0xFF007AFF)),
-              getTooltipItems: (touchedSpots) => touchedSpots.map((s) => LineTooltipItem(
-                '\$${Formatters.cryptoPrice(s.y)}',
-                const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-              )).toList(),
+            ],
+
+            lineTouchData: LineTouchData(
+              handleBuiltInTouches: true,
+              touchTooltipData: LineTouchTooltipData(
+                getTooltipColor: (_) => const Color(0xFF1A1A2E),
+                tooltipBorder: const BorderSide(color: Color(0xFF007AFF)),
+                getTooltipItems: (touchedSpots) => touchedSpots
+                    .map(
+                      (s) => LineTooltipItem(
+                        '\$${Formatters.cryptoPrice(s.y)}',
+                        const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
             ),
           ),
-        )),
+        ),
       ],
     );
   }
@@ -585,10 +680,30 @@ class _MarketPageState extends ConsumerState<MarketPage> {
   Widget _buildCommunityPanel(MarketState state) {
     // Usamos URLs directas para asegurar visualización inmediata en Web mientras se asientan los local assets
     final List<Map<String, dynamic>> communityCryptos = [
-      {'symbol': 'XRP', 'color': const Color(0xFF23292F), 'change': -4.06, 'logo': 'https://cryptologos.cc/logos/xrp-xrp-logo.png'},
-      {'symbol': 'UNI', 'color': const Color(0xFFFF007A), 'change': 3.04, 'logo': 'https://cryptologos.cc/logos/uniswap-uni-logo.png'},
-      {'symbol': 'LINK', 'color': const Color(0xFF2A5ADA), 'change': 2.74, 'logo': 'https://cryptologos.cc/logos/chainlink-link-logo.png'},
-      {'symbol': 'DOT', 'color': const Color(0xFFE6007A), 'change': 2.71, 'logo': 'https://cryptologos.cc/logos/polkadot-new-dot-logo.png'},
+      {
+        'symbol': 'XRP',
+        'color': const Color(0xFF23292F),
+        'change': -4.06,
+        'logo': 'https://cryptologos.cc/logos/xrp-xrp-logo.png',
+      },
+      {
+        'symbol': 'UNI',
+        'color': const Color(0xFFFF007A),
+        'change': 3.04,
+        'logo': 'https://cryptologos.cc/logos/uniswap-uni-logo.png',
+      },
+      {
+        'symbol': 'LINK',
+        'color': const Color(0xFF2A5ADA),
+        'change': 2.74,
+        'logo': 'https://cryptologos.cc/logos/chainlink-link-logo.png',
+      },
+      {
+        'symbol': 'DOT',
+        'color': const Color(0xFFE6007A),
+        'change': 2.71,
+        'logo': 'https://cryptologos.cc/logos/polkadot-new-dot-logo.png',
+      },
     ];
 
     return _panel(
@@ -601,8 +716,10 @@ class _MarketPageState extends ConsumerState<MarketPage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: communityCryptos.map((crypto) {
               final positive = crypto['change'] >= 0;
-              final String localAsset = 'assets/images/crypto/${crypto['symbol'].toLowerCase()}.png';
-              final String fallbackUrl = 'https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/${crypto['symbol'].toLowerCase()}.png';
+              final String localAsset =
+                  'assets/images/crypto/${crypto['symbol'].toLowerCase()}.png';
+              final String fallbackUrl =
+                  'https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/${crypto['symbol'].toLowerCase()}.png';
 
               return Column(
                 mainAxisSize: MainAxisSize.min,
@@ -610,12 +727,14 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                 children: [
                   // Logo Circular limpio
                   Container(
-                    width: 32, height: 32,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                    ),
+                    width: 32,
+                    height: 32,
+                    decoration: const BoxDecoration(shape: BoxShape.circle),
                     child: ClipOval(
-                      child: _buildCryptoLogo(crypto['symbol'], crypto['color']),
+                      child: _buildCryptoLogo(
+                        crypto['symbol'],
+                        crypto['color'],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -631,7 +750,9 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                   Row(
                     children: [
                       Icon(
-                        positive ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+                        positive
+                            ? Icons.arrow_upward_rounded
+                            : Icons.arrow_downward_rounded,
                         size: 8,
                         color: positive ? AppColors.success : AppColors.error,
                       ),
@@ -667,15 +788,47 @@ class _MarketPageState extends ConsumerState<MarketPage> {
           ? const SizedBox()
           : Column(
               children: [
-                _infoRow('Precio', '\$${Formatters.cryptoPrice(crypto.price)}', AppColors.onSurface),
-                _infoRow('Máx 24h', '\$${Formatters.cryptoPrice(crypto.high24h)}', AppColors.success),
-                _infoRow('Mín 24h', '\$${Formatters.cryptoPrice(crypto.low24h)}', AppColors.error),
-                _infoRow('Volumen', '\$${Formatters.volume(crypto.quoteVolume)}', AppColors.info),
-                _infoRow('Cambio', Formatters.percentage(crypto.priceChangePercent),
-                    crypto.priceChangePercent >= 0 ? AppColors.success : AppColors.error),
-                Divider(color: AppColors.border.withValues(alpha: 0.3), height: 16),
-                _infoRow('Precio PTR', Formatters.usdToPtr(crypto.price), AppColors.warning),
-                _infoRow('Precio Bs', Formatters.usdToBs(crypto.price), AppColors.primaryLight),
+                _infoRow(
+                  'Precio',
+                  '\$${Formatters.cryptoPrice(crypto.price)}',
+                  AppColors.onSurface,
+                ),
+                _infoRow(
+                  'Máx 24h',
+                  '\$${Formatters.cryptoPrice(crypto.high24h)}',
+                  AppColors.success,
+                ),
+                _infoRow(
+                  'Mín 24h',
+                  '\$${Formatters.cryptoPrice(crypto.low24h)}',
+                  AppColors.error,
+                ),
+                _infoRow(
+                  'Volumen',
+                  '\$${Formatters.volume(crypto.quoteVolume)}',
+                  AppColors.info,
+                ),
+                _infoRow(
+                  'Cambio',
+                  Formatters.percentage(crypto.priceChangePercent),
+                  crypto.priceChangePercent >= 0
+                      ? AppColors.success
+                      : AppColors.error,
+                ),
+                Divider(
+                  color: AppColors.border.withValues(alpha: 0.3),
+                  height: 16,
+                ),
+                _infoRow(
+                  'Precio PTR',
+                  Formatters.usdToPtr(crypto.price),
+                  AppColors.warning,
+                ),
+                _infoRow(
+                  'Precio Bs',
+                  Formatters.usdToBs(crypto.price),
+                  AppColors.primaryLight,
+                ),
                 const Spacer(),
                 Padding(
                   padding: const EdgeInsets.all(10),
@@ -687,11 +840,18 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                         backgroundColor: AppColors.primary,
                         foregroundColor: AppColors.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 10),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
                       ),
-                      child: const Text('INTERCAMBIAR', style: TextStyle(
-                        fontWeight: FontWeight.w800, fontSize: 11, letterSpacing: 1,
-                      )),
+                      child: const Text(
+                        'INTERCAMBIAR',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 11,
+                          letterSpacing: 1,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -706,10 +866,19 @@ class _MarketPageState extends ConsumerState<MarketPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: AppColors.onSurfaceMuted, fontSize: 10)),
-          Text(value, style: TextStyle(
-            color: color, fontSize: 11, fontWeight: FontWeight.w600, fontFamily: 'monospace',
-          )),
+          Text(
+            label,
+            style: TextStyle(color: AppColors.onSurfaceMuted, fontSize: 10),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'monospace',
+            ),
+          ),
         ],
       ),
     );
@@ -728,13 +897,24 @@ class _MarketPageState extends ConsumerState<MarketPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Indicador de Sentimiento
-            Text('Sentimiento de la Comunidad', style: TextStyle(
-              color: AppColors.onSurface, fontSize: 10, fontWeight: FontWeight.w600,
-            )),
+            Text(
+              'Sentimiento de la Comunidad',
+              style: TextStyle(
+                color: AppColors.onSurface,
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 8),
             Row(
               children: [
-                Text('Bajista', style: TextStyle(color: AppColors.onSurfaceMuted, fontSize: 8)),
+                Text(
+                  'Bajista',
+                  style: TextStyle(
+                    color: AppColors.onSurfaceMuted,
+                    fontSize: 8,
+                  ),
+                ),
                 Expanded(
                   child: Container(
                     height: 4,
@@ -742,7 +922,11 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(2),
                       gradient: const LinearGradient(
-                        colors: [AppColors.error, AppColors.warning, AppColors.success],
+                        colors: [
+                          AppColors.error,
+                          AppColors.warning,
+                          AppColors.success,
+                        ],
                       ),
                     ),
                     child: Stack(
@@ -750,7 +934,8 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                         Positioned(
                           left: 0.7 * 160, // Dummy pos
                           child: Container(
-                            width: 2, height: 4,
+                            width: 2,
+                            height: 4,
                             color: Colors.white,
                           ),
                         ),
@@ -758,19 +943,34 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                     ),
                   ),
                 ),
-                Text('Alcista', style: TextStyle(color: AppColors.onSurfaceMuted, fontSize: 8)),
+                Text(
+                  'Alcista',
+                  style: TextStyle(
+                    color: AppColors.onSurfaceMuted,
+                    fontSize: 8,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Sección de Noticias
             Row(
               children: [
-                Icon(Icons.newspaper_rounded, size: 12, color: AppColors.primary),
+                Icon(
+                  Icons.newspaper_rounded,
+                  size: 12,
+                  color: AppColors.primary,
+                ),
                 const SizedBox(width: 6),
-                Text('Últimas Noticias', style: TextStyle(
-                  color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.w700,
-                )),
+                Text(
+                  'Últimas Noticias',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -783,13 +983,23 @@ class _MarketPageState extends ConsumerState<MarketPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Titular: "Bitcoin alcanza nuevos máximos"', style: TextStyle(
-                    color: AppColors.onSurface, fontSize: 10, fontWeight: FontWeight.w700,
-                  )),
+                  Text(
+                    'Titular: "Bitcoin alcanza nuevos máximos"',
+                    style: TextStyle(
+                      color: AppColors.onSurface,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text('El mercado muestra una fuerte tendencia alcista tras los últimos informes institucionales...', 
-                    style: TextStyle(color: AppColors.onSurfaceMuted, fontSize: 9),
-                    maxLines: 2, overflow: TextOverflow.ellipsis,
+                  Text(
+                    'El mercado muestra una fuerte tendencia alcista tras los últimos informes institucionales...',
+                    style: TextStyle(
+                      color: AppColors.onSurfaceMuted,
+                      fontSize: 9,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -808,25 +1018,36 @@ class _MarketPageState extends ConsumerState<MarketPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
-        color: (positive ? AppColors.success : AppColors.error).withValues(alpha: 0.1),
+        color: (positive ? AppColors.success : AppColors.error).withValues(
+          alpha: 0.1,
+        ),
         borderRadius: BorderRadius.circular(3),
       ),
       child: Text(
         '${positive ? '+' : ''}${percent.toStringAsFixed(1)}%',
         style: TextStyle(
           color: positive ? AppColors.success : AppColors.error,
-          fontSize: fontSize, fontWeight: FontWeight.w700,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );
   }
 
-  Widget _panel({required String header, required IconData icon, required Widget child, Widget? headerExtra}) {
+  Widget _panel({
+    required String header,
+    required IconData icon,
+    required Widget child,
+    Widget? headerExtra,
+  }) {
     return RepaintBoundary(
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7), // Optimizado para fluidez
+          filter: ImageFilter.blur(
+            sigmaX: 7,
+            sigmaY: 7,
+          ), // Optimizado para fluidez
           child: Container(
             decoration: BoxDecoration(
               color: AppColors.surface.withValues(alpha: 0.4),
@@ -837,18 +1058,33 @@ class _MarketPageState extends ConsumerState<MarketPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.03),
-                    border: Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.05))),
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.05),
+                      ),
+                    ),
                   ),
                   child: Row(
                     children: [
                       Icon(icon, color: AppColors.primary, size: 13),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(header, style: TextStyle(
-                        color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.6,
-                      ))),
+                      Expanded(
+                        child: Text(
+                          header,
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.6,
+                          ),
+                        ),
+                      ),
                       if (headerExtra != null) headerExtra,
                     ],
                   ),
@@ -868,39 +1104,27 @@ class _MarketPageState extends ConsumerState<MarketPage> {
       children: [
         // ── Consistencia visual con orbes ──
         _buildBackgroundOrbs(),
-        
+
         Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo con Fallback y animación de pulsación
-              SvgPicture.asset(
-                'assets/images/logo-2.svg',
-                height: 120,
-                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                // Fallback si el SVG falla en la web
-                placeholderBuilder: (context) => Image.asset(
-                  'assets/images/logo.png',
-                  height: 120,
-                  color: Colors.white,
-                ),
-              ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-               .scale(begin: const Offset(0.95, 0.95), end: const Offset(1.05, 1.05), duration: 1500.ms, curve: Curves.easeInOut),
-              
-              const SizedBox(height: 40),
-              
               // Spinner elegante
               SpinKitPulsingGrid(color: AppColors.primary, size: 40),
-              
+
               const SizedBox(height: 20),
-              
-              Text('SINCRONIZANDO MERCADO', style: TextStyle(
-                color: AppColors.primary.withValues(alpha: 0.7), 
-                fontSize: 10, 
-                fontWeight: FontWeight.w800,
-                letterSpacing: 3,
-              )).animate(onPlay: (controller) => controller.repeat())
-                .shimmer(duration: 2000.ms, color: Colors.white),
+
+              Text(
+                    'SINCRONIZANDO MERCADO',
+                    style: TextStyle(
+                      color: AppColors.primary.withValues(alpha: 0.7),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 3,
+                    ),
+                  )
+                  .animate(onPlay: (controller) => controller.repeat())
+                  .shimmer(duration: 2000.ms, color: Colors.white),
             ],
           ),
         ),
@@ -908,27 +1132,34 @@ class _MarketPageState extends ConsumerState<MarketPage> {
     ),
   );
 
-  Widget _buildError(String error) => Center(child: Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Icon(Icons.cloud_off_rounded, color: AppColors.error, size: 48),
-      const SizedBox(height: 16),
-      Text('Error al cargar', style: AppTypography.h3.copyWith(color: AppColors.onSurface)),
-      const SizedBox(height: 8),
-      Text(error, style: TextStyle(color: AppColors.onSurfaceMuted)),
-      const SizedBox(height: 20),
-      ElevatedButton.icon(
-        onPressed: () => ref.read(marketProvider.notifier).cargarCriptos(),
-        icon: const Icon(Icons.refresh_rounded), label: const Text('Reintentar'),
-      ),
-    ],
-  ));
+  Widget _buildError(String error) => Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.cloud_off_rounded, color: AppColors.error, size: 48),
+        const SizedBox(height: 16),
+        Text(
+          'Error al cargar',
+          style: AppTypography.h3.copyWith(color: AppColors.onSurface),
+        ),
+        const SizedBox(height: 8),
+        Text(error, style: TextStyle(color: AppColors.onSurfaceMuted)),
+        const SizedBox(height: 20),
+        ElevatedButton.icon(
+          onPressed: () => ref.read(marketProvider.notifier).cargarCriptos(),
+          icon: const Icon(Icons.refresh_rounded),
+          label: const Text('Reintentar'),
+        ),
+      ],
+    ),
+  );
+
   /// Helper para construir el logo con múltiples fallbacks de extensión
   Widget _buildCryptoLogo(String symbol, Color color) {
     final s = symbol.toLowerCase();
     // Lista de extensiones a probar localmente (según lo visto en la carpeta)
     final extensions = ['.png', '.jpeg', '.jpg', '.webp'];
-    
+
     return Image.asset(
       'assets/images/crypto/$s${extensions[0]}',
       fit: BoxFit.cover,
@@ -961,21 +1192,23 @@ class _MarketPageState extends ConsumerState<MarketPage> {
     );
   }
 
-
   /// Crea orbes de color difuminados en el fondo para que el blur de las tarjetas sea visible.
   Widget _buildBackgroundOrbs() {
     return Stack(
       children: [
         Positioned(
-          top: -100, left: -50,
+          top: -100,
+          left: -50,
           child: _orb(250, AppColors.primary.withValues(alpha: 0.12)),
         ),
         Positioned(
-          bottom: 100, right: -100,
+          bottom: 100,
+          right: -100,
           child: _orb(300, const Color(0xFF6366F1).withValues(alpha: 0.1)),
         ),
         Positioned(
-          top: 200, right: 100,
+          top: 200,
+          right: 100,
           child: _orb(150, const Color(0xFFA855F7).withValues(alpha: 0.08)),
         ),
       ],
@@ -984,15 +1217,12 @@ class _MarketPageState extends ConsumerState<MarketPage> {
 
   Widget _orb(double size, Color color) {
     return Container(
-      width: size, height: size,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: RadialGradient(
-          colors: [
-            color,
-            color.withValues(alpha: 0.4),
-            Colors.transparent,
-          ],
+          colors: [color, color.withValues(alpha: 0.4), Colors.transparent],
         ),
       ),
     );
