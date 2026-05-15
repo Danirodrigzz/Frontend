@@ -123,207 +123,435 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
 
+    final isMobile = MediaQuery.of(context).size.width < 1200;
+
     return Stack(
       children: [
         _buildBackgroundOrbs(),
         SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 20, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── ENCABEZADO ───────────────────────────────────
+              // El título y el estado del sistema
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Panel de Configuración',
-                        style: AppTypography.h3.copyWith(color: AppColors.onSurface),
-                      ),
-                      Text(
-                        'Personaliza tu interfaz y preferencias del sistema',
-                        style: AppTypography.labelSmall.copyWith(
-                          color: AppColors.onSurfaceVariant,
-                          fontSize: 10,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Panel de Configuración',
+                          style: AppTypography.h3.copyWith(color: AppColors.onSurface, fontSize: isMobile ? 18 : 22),
                         ),
-                      ),
-                    ],
+                        Text(
+                          'Personaliza tu interfaz y preferencias del sistema',
+                          style: AppTypography.labelSmall.copyWith(
+                            color: AppColors.onSurfaceVariant,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  _statusRow('SISTEMA', 'ESTABLE', AppColors.success),
+                  if (!isMobile) _statusRow('SISTEMA', 'ESTABLE', AppColors.success),
                 ],
               ),
               const SizedBox(height: 20),
 
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ═══ COLUMNA IZQUIERDA (Info & Acerca de) ════════════
-                  SizedBox(
-                    width: 280,
-                    child: Column(
-                      children: [
-                        _panel(
-                          header: 'INFORMACIÓN',
-                          icon: Icons.info_outline_rounded,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+              if (isMobile)
+                Column(
+                  children: [
+                    _panel(
+                      header: 'INFORMACIÓN',
+                      icon: Icons.info_outline_rounded,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
                               children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        gradient: AppColors.primaryGradient,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: SvgPicture.asset(
-                                          'assets/images/logo-2.svg',
-                                          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(AppConstants.appName, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
-                                        Text('Versión ${AppConstants.appVersion}', style: TextStyle(color: AppColors.onSurfaceMuted, fontSize: 10)),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Aplicación premium de intercambio de activos con datos sincronizados en tiempo real.',
-                                  style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceVariant, height: 1.5, fontSize: 10),
-                                ),
-                                const SizedBox(height: 16),
-                                _buildTechChips(),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _panel(
-                          header: 'DISPOSITIVO',
-                          icon: Icons.devices_rounded,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              children: [
-                                _infoRow('Almacenamiento', 'Local (SharedPrefs)', AppColors.onSurfaceVariant),
-                                const SizedBox(height: 10),
-                                _infoRow('Plataforma', 'Web (Flutter)', AppColors.primary),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _panel(
-                          header: 'SESIÓN',
-                          icon: Icons.account_circle_outlined,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton.icon(
-                                    onPressed: () async {
-                                      await ref.read(authProvider.notifier).cerrarSesion();
-                                      if (context.mounted) context.go('/login');
-                                    },
-                                    icon: const Icon(Icons.logout_rounded, size: 16),
-                                    label: const Text('Cerrar Sesión', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.error.withValues(alpha: 0.1),
-                                      foregroundColor: AppColors.error,
-                                      elevation: 0,
-                                      padding: const EdgeInsets.symmetric(vertical: 12),
-                                      side: BorderSide(color: AppColors.error.withValues(alpha: 0.3)),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    gradient: AppColors.primaryGradient,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8),
+                                    child: SvgPicture.asset(
+                                      'assets/images/logo-2.svg',
+                                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                                     ),
                                   ),
                                 ),
+                                const SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(AppConstants.appName, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                                    Text('Versión ${AppConstants.appVersion}', style: TextStyle(color: AppColors.onSurfaceMuted, fontSize: 10)),
+                                  ],
+                                ),
                               ],
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Aplicación premium de intercambio de activos con datos sincronizados en tiempo real.',
+                              style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceVariant, height: 1.5, fontSize: 10),
+                            ),
+                            const SizedBox(height: 16),
+                            _buildTechChips(),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-
-                  const SizedBox(width: 20),
-
-                  // ═══ COLUMNA DERECHA (Opciones de Configuración) ═════
-                  Expanded(
-                    child: Column(
+                    const SizedBox(height: 12),
+                    _panel(
+                      header: 'DISPOSITIVO',
+                      icon: Icons.devices_rounded,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            _infoRow('Almacenamiento', 'Local (SharedPrefs)', AppColors.onSurfaceVariant),
+                            const SizedBox(height: 10),
+                            _infoRow('Plataforma', 'Web (Flutter)', AppColors.primary),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Lo que el usuario puede cambiar
+                    _buildGroup(
+                      title: 'VISIBILIDAD DE SECCIONES',
+                      icon: Icons.visibility_rounded,
                       children: [
-                        // --- Grupo: Apariencia ---
-                        _buildGroup(
-                          title: 'VISIBILIDAD DE SECCIONES',
-                          icon: Icons.visibility_rounded,
-                          children: [
-                            _buildToggle(
-                              titulo: 'Panel de Mercado',
-                              descripcion: 'Lista interactiva de precios actuales',
-                              icono: Icons.analytics_outlined,
-                              valor: settings.mostrarMercado,
-                              onChanged: (v) => ref.read(settingsProvider.notifier).toggleMercado(v),
-                            ),
-                            _buildToggle(
-                              titulo: 'Resumen de Portafolio',
-                              descripcion: 'Visualización de tus activos totales',
-                              icono: Icons.wallet_rounded,
-                              valor: settings.mostrarPortafolio,
-                              onChanged: (v) => ref.read(settingsProvider.notifier).togglePortafolio(v),
-                            ),
-                            _buildToggle(
-                              titulo: 'Historial de Actividad',
-                              descripcion: 'Registro de tus operaciones pasadas',
-                              icono: Icons.history_edu_rounded,
-                              valor: settings.mostrarHistorial,
-                              onChanged: (v) => ref.read(settingsProvider.notifier).toggleHistorial(v),
-                            ),
-                          ],
+                        _buildToggle(
+                          titulo: 'Panel de Mercado',
+                          descripcion: 'Lista interactiva de precios actuales',
+                          icono: Icons.analytics_outlined,
+                          valor: settings.mostrarMercado,
+                          onChanged: (v) => ref.read(settingsProvider.notifier).toggleMercado(v),
                         ),
-                        
-                        const SizedBox(height: 16),
-
-                        // --- Grupo: Actualización ---
-                        _buildGroup(
-                          title: 'SINCRONIZACIÓN DE DATOS',
-                          icon: Icons.sync_rounded,
-                          children: [
-                            _buildToggle(
-                              titulo: 'Auto-refresco de Precios',
-                              descripcion: 'Mantener datos actualizados vía API',
-                              icono: Icons.bolt_rounded,
-                              valor: settings.autoRefresh,
-                              onChanged: (v) => ref.read(settingsProvider.notifier).toggleAutoRefresh(v),
-                            ),
-                            if (settings.autoRefresh) ...[
-                              const Divider(height: 1, color: Colors.white10),
-                              _buildIntervalSelector(ref, settings),
-                            ],
-                          ],
+                        _buildToggle(
+                          titulo: 'Resumen de Portafolio',
+                          descripcion: 'Visualización de tus activos totales',
+                          icono: Icons.wallet_rounded,
+                          valor: settings.mostrarPortafolio,
+                          onChanged: (v) => ref.read(settingsProvider.notifier).togglePortafolio(v),
+                        ),
+                        _buildToggle(
+                          titulo: 'Historial de Actividad',
+                          descripcion: 'Registro de tus operaciones pasadas',
+                          icono: Icons.history_edu_rounded,
+                          valor: settings.mostrarHistorial,
+                          onChanged: (v) => ref.read(settingsProvider.notifier).toggleHistorial(v),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(height: 16),
+                    _buildGroup(
+                      title: 'SINCRONIZACIÓN DE DATOS',
+                      icon: Icons.sync_rounded,
+                      children: [
+                        _buildToggle(
+                          titulo: 'Auto-refresco de Precios',
+                          descripcion: 'Mantener datos actualizados vía API',
+                          icono: Icons.bolt_rounded,
+                          valor: settings.autoRefresh,
+                          onChanged: (v) => ref.read(settingsProvider.notifier).toggleAutoRefresh(v),
+                        ),
+                        if (settings.autoRefresh) ...[
+                          const Divider(height: 1, color: Colors.white10),
+                          _buildIntervalSelector(ref, settings),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _panel(
+                      header: 'SESIÓN',
+                      icon: Icons.account_circle_outlined,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () => _mostrarConfirmacionCerrarSesion(context, ref),
+                                icon: const Icon(Icons.logout_rounded, size: 16),
+                                label: const Text('Cerrar Sesión', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.error.withValues(alpha: 0.1),
+                                  foregroundColor: AppColors.error,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  side: BorderSide(color: AppColors.error.withValues(alpha: 0.3)),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                )
+              else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Info de la app y del equipo
+                    SizedBox(
+                      width: 280,
+                      child: Column(
+                        children: [
+                          _panel(
+                            header: 'INFORMACIÓN',
+                            icon: Icons.info_outline_rounded,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          gradient: AppColors.primaryGradient,
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: SvgPicture.asset(
+                                            'assets/images/logo-2.svg',
+                                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(AppConstants.appName, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                                          Text('Versión ${AppConstants.appVersion}', style: TextStyle(color: AppColors.onSurfaceMuted, fontSize: 10)),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Aplicación premium de intercambio de activos con datos sincronizados en tiempo real.',
+                                    style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceVariant, height: 1.5, fontSize: 10),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildTechChips(),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _panel(
+                            header: 'DISPOSITIVO',
+                            icon: Icons.devices_rounded,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                children: [
+                                  _infoRow('Almacenamiento', 'Local (SharedPrefs)', AppColors.onSurfaceVariant),
+                                  const SizedBox(height: 10),
+                                  _infoRow('Plataforma', 'Web (Flutter)', AppColors.primary),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _panel(
+                            header: 'SESIÓN',
+                            icon: Icons.account_circle_outlined,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton.icon(
+                                      onPressed: () => _mostrarConfirmacionCerrarSesion(context, ref),
+                                      icon: const Icon(Icons.logout_rounded, size: 16),
+                                      label: const Text('Cerrar Sesión', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppColors.error.withValues(alpha: 0.1),
+                                        foregroundColor: AppColors.error,
+                                        elevation: 0,
+                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        side: BorderSide(color: AppColors.error.withValues(alpha: 0.3)),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(width: 20),
+
+                    // Opciones para personalizar la vista
+                    Expanded(
+                      child: Column(
+                        children: [
+                          _buildGroup(
+                            title: 'VISIBILIDAD DE SECCIONES',
+                            icon: Icons.visibility_rounded,
+                            children: [
+                              _buildToggle(
+                                titulo: 'Panel de Mercado',
+                                descripcion: 'Lista interactiva de precios actuales',
+                                icono: Icons.analytics_outlined,
+                                valor: settings.mostrarMercado,
+                                onChanged: (v) => ref.read(settingsProvider.notifier).toggleMercado(v),
+                              ),
+                              _buildToggle(
+                                titulo: 'Resumen de Portafolio',
+                                descripcion: 'Visualización de tus activos totales',
+                                icono: Icons.wallet_rounded,
+                                valor: settings.mostrarPortafolio,
+                                onChanged: (v) => ref.read(settingsProvider.notifier).togglePortafolio(v),
+                              ),
+                              _buildToggle(
+                                titulo: 'Historial de Actividad',
+                                descripcion: 'Registro de tus operaciones pasadas',
+                                icono: Icons.history_edu_rounded,
+                                valor: settings.mostrarHistorial,
+                                onChanged: (v) => ref.read(settingsProvider.notifier).toggleHistorial(v),
+                              ),
+                            ],
+                          ),
+                          
+                          const SizedBox(height: 16),
+
+                          _buildGroup(
+                            title: 'SINCRONIZACIÓN DE DATOS',
+                            icon: Icons.sync_rounded,
+                            children: [
+                              _buildToggle(
+                                titulo: 'Auto-refresco de Precios',
+                                descripcion: 'Mantener datos actualizados vía API',
+                                icono: Icons.bolt_rounded,
+                                valor: settings.autoRefresh,
+                                onChanged: (v) => ref.read(settingsProvider.notifier).toggleAutoRefresh(v),
+                              ),
+                              if (settings.autoRefresh) ...[
+                                const Divider(height: 1, color: Colors.white10),
+                                _buildIntervalSelector(ref, settings),
+                              ],
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  void _mostrarConfirmacionCerrarSesion(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.6),
+      builder: (context) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 340),
+            child: GlassmorphicCard(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.logout_rounded, color: AppColors.error, size: 28),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    '¿Cerrar Sesión?',
+                    style: AppTypography.h4.copyWith(color: AppColors.onSurface),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    '¿Estás seguro de que deseas salir de la aplicación? Deberás ingresar tus credenciales nuevamente.',
+                    textAlign: TextAlign.center,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(
+                            'CANCELAR',
+                            style: TextStyle(
+                              color: AppColors.onSurfaceMuted,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await ref.read(authProvider.notifier).cerrarSesion();
+                            if (context.mounted) context.go('/login');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.error,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          child: const Text(
+                            'SALIR',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), curve: Curves.easeOutBack),
     );
   }
 
