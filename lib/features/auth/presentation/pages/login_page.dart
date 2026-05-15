@@ -287,7 +287,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             _buildField(
               controller: _emailController,
               label: 'Correo electrónico',
-              hint: 'tu@email.com',
+              hint: 'Email',
               icon: Icons.email_outlined,
               validator: Validators.email,
               keyboardType: TextInputType.emailAddress,
@@ -298,7 +298,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             _buildField(
               controller: _contrasenaController,
               label: 'Contraseña',
-              hint: '••••••••',
+              hint: 'Contraseña',
               icon: Icons.lock_outline,
               validator: Validators.contrasena,
               obscure: !_mostrarContrasena,
@@ -343,6 +343,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             Center(
               child: InkWell(
                 onTap: () => context.go('/register'),
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
                 borderRadius: BorderRadius.circular(4),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),

@@ -285,7 +285,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             _buildField(
               controller: _nombreController,
               label: 'Nombre de usuario',
-              hint: 'Ej: juan_crypto',
+              hint: 'Nombre',
               icon: Icons.person_outline,
               validator: Validators.nombreUsuario,
             ),
@@ -295,7 +295,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             _buildField(
               controller: _emailController,
               label: 'Correo electrónico',
-              hint: 'tu@email.com',
+              hint: 'Email',
               icon: Icons.email_outlined,
               validator: Validators.email,
               keyboardType: TextInputType.emailAddress,
@@ -306,7 +306,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             _buildField(
               controller: _contrasenaController,
               label: 'Contraseña',
-              hint: 'Mínimo 8 caracteres',
+              hint: 'Contraseña',
               icon: Icons.lock_outline,
               validator: Validators.contrasena,
               obscure: !_mostrarContrasena,
@@ -364,6 +364,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             Center(
               child: InkWell(
                 onTap: () => context.go('/login'),
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
                 borderRadius: BorderRadius.circular(4),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
