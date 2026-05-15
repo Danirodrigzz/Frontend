@@ -17,7 +17,7 @@ import '../providers/market_provider.dart';
 /// Dashboard principal con layout de 3 columnas:
 ///  - Columna izquierda: MULTI-ASSET PORTFOLIO (donut) + TRENDING SIGNALS
 ///  - Columna central: Gráfica principal grande + COMMUNITY INSIGHTS abajo
-///  - Columna derecha: FAST TRADE & INFO + SENTIMENT & NEWS
+///  - Columna derecha: FAST TRADE & INFO + SENTIMENT Y NEWS
 class MarketPage extends ConsumerStatefulWidget {
   const MarketPage({super.key});
 
@@ -72,78 +72,103 @@ class _MarketPageState extends ConsumerState<MarketPage> {
         ? state.criptos[_selectedCryptoIndex]
         : null;
 
+    final isMobile = MediaQuery.of(context).size.width < 1200;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // ── Orbes de Luz de Fondo (Para lucir el Glassmorphism) ───
+          // Orbes de luz para que el fondo se vea bien
           _buildBackgroundOrbs(),
 
-          // ── Contenido Principal ──────────────────────────────────
+          // El contenido principal de la pantalla
           Padding(
             padding: const EdgeInsets.all(10),
-            child: Row(
-              children: [
-                // ═══ COLUMNA IZQUIERDA ═══════════════════════════════
-                SizedBox(
-                  width: 220,
-                  child: Column(
-                    children: [
-                      // Panel: MULTI-ASSET PORTFOLIO (donut + lista)
-                      Expanded(flex: 5, child: _buildPortfolioPanel(state)),
-                      const SizedBox(height: 10),
-                      // Panel: TRENDING SIGNALS
-                      Expanded(flex: 4, child: _buildTrendingPanel(state)),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                // ═══ COLUMNA CENTRAL ═════════════════════════════════
-                Expanded(
-                  child: RepaintBoundary(
+            child: isMobile
+                ? SingleChildScrollView(
                     child: Column(
                       children: [
-                        // Panel: GRÁFICA PRINCIPAL (grande)
-                        Expanded(
-                          flex: 6,
-                          child: _buildMainChartPanel(selected),
-                        ),
+                        // En móvil: Gráfica primero
+                        SizedBox(height: 350, child: _buildMainChartPanel(selected)),
                         const SizedBox(height: 10),
-                        // Panel: COMMUNITY INSIGHTS
-                        Expanded(flex: 2, child: _buildCommunityPanel(state)),
+                        // Luego trading signals
+                        SizedBox(height: 300, child: _buildTrendingPanel(state)),
+                        const SizedBox(height: 10),
+                        // Luego portafolio
+                        SizedBox(height: 300, child: _buildPortfolioPanel(state)),
+                        const SizedBox(height: 10),
+                        // Luego trading panel
+                        SizedBox(height: 400, child: _buildTradingPanel(selected)),
+                        const SizedBox(height: 10),
+                        // Sentiment y community al final
+                        SizedBox(height: 250, child: _buildSentimentPanel(state)),
+                        const SizedBox(height: 10),
+                        SizedBox(height: 250, child: _buildCommunityPanel(state)),
+                        const SizedBox(height: 20),
                       ],
                     ),
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                // ═══ COLUMNA DERECHA ═════════════════════════════════
-                SizedBox(
-                  width: 220,
-                  child: Column(
+                  )
+                : Row(
                     children: [
-                      // Panel: FAST TRADE & INFO
-                      Expanded(flex: 5, child: _buildTradingPanel(selected)),
-                      const SizedBox(height: 10),
-                      // Panel: SENTIMENT & NEWS
-                      Expanded(flex: 4, child: _buildSentimentPanel(state)),
+                      // Portafolio y señales de tendencia
+                      SizedBox(
+                        width: 220,
+                        child: Column(
+                          children: [
+                            // Panel: MULTI-ASSET PORTFOLIO (donut + lista)
+                            Expanded(flex: 5, child: _buildPortfolioPanel(state)),
+                            const SizedBox(height: 10),
+                            // Panel: TRENDING SIGNALS
+                            Expanded(flex: 4, child: _buildTrendingPanel(state)),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      // Gráfica y noticias de la comunidad
+                      Expanded(
+                        child: RepaintBoundary(
+                          child: Column(
+                            children: [
+                              // Panel: GRÁFICA PRINCIPAL (grande)
+                              Expanded(
+                                flex: 6,
+                                child: _buildMainChartPanel(selected),
+                              ),
+                              const SizedBox(height: 10),
+                              // Panel: COMMUNITY INSIGHTS
+                              Expanded(flex: 2, child: _buildCommunityPanel(state)),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      // Panel de trading y sentimiento
+                      SizedBox(
+                        width: 220,
+                        child: Column(
+                          children: [
+                            // Panel: FAST TRADE & INFO
+                            Expanded(flex: 5, child: _buildTradingPanel(selected)),
+                            const SizedBox(height: 10),
+                            // Panel: SENTIMENT & NEWS
+                            Expanded(flex: 4, child: _buildSentimentPanel(state)),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // COLUMNA IZQUIERDA — MULTI-ASSET PORTFOLIO
-  // ══════════════════════════════════════════════════════════════
+  // Listado de criptos y gráfico de distribución circular
+
 
   /// Mapa de colores e iconos oficiales por símbolo de cripto
   static const Map<String, _CryptoIcon> _cryptoIcons = {
@@ -364,9 +389,8 @@ class _MarketPageState extends ConsumerState<MarketPage> {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // COLUMNA IZQUIERDA — TRENDING SIGNALS
-  // ══════════════════════════════════════════════════════════════
+  // Panel superior con las criptos que tienen más movimiento hoy
+
   Widget _buildTrendingPanel(MarketState state) {
     final trending = List<CryptoModel>.from(state.criptos)
       ..sort((a, b) => b.quoteVolume.compareTo(a.quoteVolume));
@@ -428,9 +452,8 @@ class _MarketPageState extends ConsumerState<MarketPage> {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // COLUMNA CENTRAL — GRÁFICA PRINCIPAL
-  // ══════════════════════════════════════════════════════════════
+  // Gráfico principal con el historial de precios en tiempo real
+
   Widget _buildMainChartPanel(CryptoModel? crypto) {
     return _panel(
       header: crypto != null
@@ -556,7 +579,7 @@ class _MarketPageState extends ConsumerState<MarketPage> {
 
     return Stack(
       children: [
-        // ── Capa de Fondo: Barras de Volumen (Simuladas) ──────────
+        // Capa de Fondo: Barras de Volumen
         Positioned.fill(
           bottom: 0,
           top: 100,
@@ -577,7 +600,7 @@ class _MarketPageState extends ConsumerState<MarketPage> {
           ),
         ),
 
-        // ── Capa Principal: Gráfica de Línea ──────────────────────
+        // Capa Principal: Gráfica de Línea
         LineChart(
           LineChartData(
             gridData: FlGridData(
@@ -674,9 +697,8 @@ class _MarketPageState extends ConsumerState<MarketPage> {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // COLUMNA CENTRAL ABAJO — COMMUNITY INSIGHTS
-  // ══════════════════════════════════════════════════════════════
+  // Pequeños indicadores con el sentimiento de otros usuarios
+
   Widget _buildCommunityPanel(MarketState state) {
     // Usamos URLs directas para asegurar visualización inmediata en Web mientras se asientan los local assets
     final List<Map<String, dynamic>> communityCryptos = [
@@ -777,9 +799,8 @@ class _MarketPageState extends ConsumerState<MarketPage> {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // COLUMNA DERECHA — FAST TRADE & INFO
-  // ══════════════════════════════════════════════════════════════
+  // Panel lateral para ver precios detallados y botón de intercambio
+
   Widget _buildTradingPanel(CryptoModel? crypto) {
     return _panel(
       header: 'OPERACIÓN RÁPIDA E INFO',
@@ -884,9 +905,8 @@ class _MarketPageState extends ConsumerState<MarketPage> {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // COLUMNA DERECHA ABAJO — SENTIMENT & NEWS
-  // ══════════════════════════════════════════════════════════════
+  // Sección de análisis de sentimiento alcista/bajista y noticias
+
   Widget _buildSentimentPanel(MarketState state) {
     return _panel(
       header: 'SENTIMIENTO Y NOTICIAS',
@@ -1010,9 +1030,8 @@ class _MarketPageState extends ConsumerState<MarketPage> {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // UTILIDADES
-  // ══════════════════════════════════════════════════════════════
+  // Widgets reutilizables para etiquetas de cambio y paneles glassmorphic
+
   Widget _changeBadge(double percent, {double fontSize = 10}) {
     final positive = percent >= 0;
     return Container(
@@ -1102,7 +1121,7 @@ class _MarketPageState extends ConsumerState<MarketPage> {
     backgroundColor: AppColors.background,
     body: Stack(
       children: [
-        // ── Consistencia visual con orbes ──
+        // Consistencia visual con orbes
         _buildBackgroundOrbs(),
 
         Center(

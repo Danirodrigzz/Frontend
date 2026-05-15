@@ -12,6 +12,7 @@ import '../../../../shared/widgets/gradient_button.dart';
 import '../../../market/presentation/providers/market_provider.dart';
 import '../../../portfolio/presentation/providers/portfolio_provider.dart';
 import '../../../history/presentation/providers/history_provider.dart';
+import '../../../market/data/models/crypto_model.dart';
 
 /// Pantalla de intercambio de criptomonedas.
 /// Permite seleccionar cripto origen y destino, ingresar cantidad
@@ -303,16 +304,18 @@ class _ExchangePageState extends ConsumerState<ExchangePage>
     // Obtener info de las criptos seleccionadas para los paneles laterales
     final cryptoOrigen = market.criptos.where((c) => c.shortSymbol == _simboloOrigen).firstOrNull;
     final cryptoDestino = market.criptos.where((c) => c.shortSymbol == _simboloDestino).firstOrNull;
+    final saldoDestino = portfolio.saldos[_simboloDestino] ?? 0.0;
+    final isMobile = MediaQuery.of(context).size.width < 1200;
 
     return Stack(
       children: [
         _buildBackgroundOrbs(),
         SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 20, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── TÍTULO DE PÁGINA ──────────────────────────────────
+              // El título de lo que estamos haciendo
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -321,7 +324,7 @@ class _ExchangePageState extends ConsumerState<ExchangePage>
                     children: [
                       Text(
                         'Intercambio de Activos',
-                        style: AppTypography.h3.copyWith(color: AppColors.onSurface),
+                        style: AppTypography.h3.copyWith(color: AppColors.onSurface, fontSize: isMobile ? 18 : 22),
                       ),
                       Text(
                         'Convierte tus criptomonedas de forma instantánea',
@@ -332,202 +335,235 @@ class _ExchangePageState extends ConsumerState<ExchangePage>
                       ),
                     ],
                   ),
-                  _statusRow('RED', 'ONLINE', AppColors.success),
+                  if (!isMobile) _statusRow('RED', 'ONLINE', AppColors.success),
                 ],
               ),
               const SizedBox(height: 16),
 
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ═══ COLUMNA IZQUIERDA (Info Activo Origen) ══════════
-                  SizedBox(
-                    width: 250,
-                    child: Column(
-                      children: [
-                        _panel(
-                          header: 'ACTIVO DE ORIGEN',
-                          icon: Icons.upload_rounded,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 32,
-                                      height: 32,
-                                      decoration: const BoxDecoration(shape: BoxShape.circle),
-                                      child: ClipOval(child: _buildCryptoLogo(_simboloOrigen, AppColors.primary)),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(_simboloOrigen, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
-                                        Text('Balance: ${saldoOrigen.toStringAsFixed(2)}', style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceMuted)),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-                                _statusRow('Precio actual', Formatters.usd(_obtenerPrecioUsd(_simboloOrigen, market)), AppColors.onSurface),
-                                if (cryptoOrigen != null) ...[
-                                  const SizedBox(height: 8),
-                                  _statusRow('Cambio 24h', Formatters.percentage(cryptoOrigen.priceChangePercent), cryptoOrigen.priceChangePercent >= 0 ? AppColors.success : AppColors.error),
-                                ],
-                              ],
-                            ),
+              if (isMobile)
+                Column(
+                  children: [
+                    _buildSwapInterface(simbolosDisponibles, saldoOrigen, portfolio),
+                    if (_errorMessage != null) _buildErrorBanner(),
+                    const SizedBox(height: 12),
+                    if (_tasaCambio > 0) _buildRateInfo(),
+                    const SizedBox(height: 12),
+                    if (_intercambioExitoso) 
+                      _buildSuccessState()
+                    else
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: _procesando ? null : _ejecutarIntercambio,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: AppColors.onPrimary,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 0,
                           ),
+                          child: _procesando
+                              ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                              : const Text('REALIZAR INTERCAMBIO', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
                         ),
-                        const SizedBox(height: 12),
-                        _panel(
-                          header: 'SEGURIDAD',
-                          icon: Icons.verified_user_rounded,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              children: [
-                                _statusRow('Protocolo', 'AES-256', AppColors.primary),
-                                const SizedBox(height: 8),
-                                _statusRow('Estado', 'Verificado', AppColors.success),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
+                    const SizedBox(height: 20),
+                    _panel(
+                      header: 'ACTIVO DE ORIGEN',
+                      icon: Icons.upload_rounded,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: _buildAssetInfo(_simboloOrigen, saldoOrigen, cryptoOrigen, market),
+                      ),
                     ),
-                  ),
-
-                  const SizedBox(width: 20),
-
-                  // ═══ COLUMNA CENTRAL (Interfaz de Intercambio) ═══════
-                  Expanded(
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 520),
-                        child: Column(
-                          children: [
-                            _buildSwapInterface(simbolosDisponibles, saldoOrigen, portfolio),
-                            
-                            if (_errorMessage != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 12),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.error.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: AppColors.error.withValues(alpha: 0.2)),
+                    const SizedBox(height: 12),
+                    _panel(
+                      header: 'ACTIVO DE DESTINO',
+                      icon: Icons.download_rounded,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: _buildAssetInfo(_simboloDestino, saldoDestino, cryptoDestino, market),
+                      ),
+                    ),
+                  ],
+                )
+              else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Info de la moneda que vas a entregar
+                    SizedBox(
+                      width: 250,
+                      child: Column(
+                        children: [
+                          _panel(
+                            header: 'ACTIVO DE ORIGEN',
+                            icon: Icons.upload_rounded,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: _buildAssetInfo(_simboloOrigen, saldoOrigen, cryptoOrigen, market),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _panel(
+                            header: 'HISTORIAL RECIENTE',
+                            icon: Icons.history_rounded,
+                            child: history.transacciones.isEmpty
+                                ? const Center(child: Padding(padding: EdgeInsets.all(24), child: Text('Sin actividad', style: TextStyle(fontSize: 10, color: Colors.grey))))
+                                : ListView.separated(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: history.transacciones.length > 3 ? 3 : history.transacciones.length,
+                                    separatorBuilder: (_, __) => Divider(height: 1, color: Colors.white.withValues(alpha: 0.05)),
+                                    itemBuilder: (_, i) => _miniHistoryRow(history.transacciones[i]),
                                   ),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 16),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: Text(
-                                          _errorMessage!,
-                                          style: TextStyle(
-                                            color: AppColors.error,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ).animate().fadeIn().shake(duration: 400.ms),
-                              ),
+                          ),
+                        ],
+                      ),
+                    ),
 
-                            const SizedBox(height: 12),
-                            if (_tasaCambio > 0) _buildRateInfo(),
-                            const SizedBox(height: 12),
-                            if (_intercambioExitoso)
-                              _buildSuccessState()
-                            else
-                              SizedBox(
-                                width: double.infinity,
-                                height: 50,
-                                child: GradientButton(
-                                  text: 'Confirmar Intercambio',
-                                  icon: Icons.swap_horiz_rounded,
-                                  isLoading: _procesando,
-                                  onPressed: _procesando ? null : _ejecutarIntercambio,
+                    const SizedBox(width: 20),
+
+                    // El lugar donde pones los montos
+                    Expanded(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 520),
+                          child: Column(
+                            children: [
+                              _buildSwapInterface(simbolosDisponibles, saldoOrigen, portfolio),
+                              
+                              if (_errorMessage != null) _buildErrorBanner(),
+
+                              const SizedBox(height: 12),
+                              if (_tasaCambio > 0) _buildRateInfo(),
+                              const SizedBox(height: 12),
+                              if (_intercambioExitoso)
+                                _buildSuccessState()
+                              else
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 48,
+                                  child: ElevatedButton(
+                                    onPressed: _procesando ? null : _ejecutarIntercambio,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: AppColors.onPrimary,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      elevation: 0,
+                                    ),
+                                    child: _procesando
+                                        ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                        : const Text('REALIZAR INTERCAMBIO', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+                                  ),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(width: 20),
+                    const SizedBox(width: 20),
 
-                  // ═══ COLUMNA DERECHA (Info Activo Destino + History) ══
-                  SizedBox(
-                    width: 250,
-                    child: Column(
-                      children: [
-                        _panel(
-                          header: 'ACTIVO DE DESTINO',
-                          icon: Icons.download_rounded,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 32,
-                                      height: 32,
-                                      decoration: const BoxDecoration(shape: BoxShape.circle),
-                                      child: ClipOval(child: _buildCryptoLogo(_simboloDestino, AppColors.primary)),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(_simboloDestino, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
-                                        Text('Recibirás estimado', style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceMuted)),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-                                _statusRow('Precio actual', Formatters.usd(_obtenerPrecioUsd(_simboloDestino, market)), AppColors.onSurface),
-                                if (cryptoDestino != null) ...[
-                                  const SizedBox(height: 8),
-                                  _statusRow('Cambio 24h', Formatters.percentage(cryptoDestino.priceChangePercent), cryptoDestino.priceChangePercent >= 0 ? AppColors.success : AppColors.error),
-                                ],
-                              ],
+                    // Info de la moneda que vas a recibir
+                    SizedBox(
+                      width: 250,
+                      child: Column(
+                        children: [
+                          _panel(
+                            header: 'ACTIVO DE DESTINO',
+                            icon: Icons.download_rounded,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: _buildAssetInfo(_simboloDestino, saldoDestino, cryptoDestino, market),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        _panel(
-                          header: 'HISTORIAL RECIENTE',
-                          icon: Icons.history_rounded,
-                          child: history.transacciones.isEmpty
-                              ? const Center(child: Padding(padding: EdgeInsets.all(24), child: Text('Sin actividad', style: TextStyle(fontSize: 10, color: Colors.grey))))
-                              : ListView.separated(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: history.transacciones.length > 3 ? 3 : history.transacciones.length,
-                                  separatorBuilder: (_, __) => Divider(height: 1, color: Colors.white.withValues(alpha: 0.05)),
-                                  itemBuilder: (_, i) => _miniHistoryRow(history.transacciones[i]),
-                                ),
-                        ),
-                      ],
+                          const SizedBox(height: 12),
+                          _panel(
+                            header: 'SEGURIDAD',
+                            icon: Icons.verified_user_rounded,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                children: [
+                                  _statusRow('Protocolo', 'AES-256', AppColors.primary),
+                                  const SizedBox(height: 8),
+                                  _statusRow('Estado', 'Verificado', AppColors.success),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildAssetInfo(String symbol, double saldo, CryptoModel? crypto, MarketState market) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: const BoxDecoration(shape: BoxShape.circle),
+              child: ClipOval(child: _buildCryptoLogo(symbol, AppColors.primary)),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(symbol, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+                Text('Balance: ${saldo.toStringAsFixed(2)}', style: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceMuted)),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        _statusRow('Precio actual', Formatters.usd(_obtenerPrecioUsd(symbol, market)), AppColors.onSurface),
+        if (crypto != null) ...[
+          const SizedBox(height: 8),
+          _statusRow('Cambio 24h', Formatters.percentage(crypto.priceChangePercent), crypto.priceChangePercent >= 0 ? AppColors.success : AppColors.error),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildErrorBanner() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.error.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.error.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 16),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                _errorMessage!,
+                style: TextStyle(
+                  color: AppColors.error,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ).animate().fadeIn().shake(duration: 400.ms),
     );
   }
 
@@ -846,9 +882,8 @@ class _ExchangePageState extends ConsumerState<ExchangePage>
         );
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // HELPERS VISUALES (Consistencia con el resto de la App)
-  // ══════════════════════════════════════════════════════════════
+  // Elementos visuales auxiliares para logos y efectos de fondo
+
 
   /// Helper para construir el logo con múltiples fallbacks de extensión
   Widget _buildCryptoLogo(String symbol, Color color) {

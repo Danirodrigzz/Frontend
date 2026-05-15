@@ -78,23 +78,23 @@ class _CryptoDetailPageState extends ConsumerState<CryptoDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Navegación de retorno ─────────────────────────
+          // Navegación para volver atrás
           _buildBreadcrumb(data),
           const SizedBox(height: 20),
 
-          // ── Info principal del precio ─────────────────────
+          // Información principal del precio
           _buildPriceHeader(data, colorCambio, esPositivo),
           const SizedBox(height: 24),
 
-          // ── Gráfico de precios ────────────────────────────
+          // Gráfico de precios
           _buildChartSection(data),
           const SizedBox(height: 24),
 
-          // ── Estadísticas y conversiones ────────────────────
+          // Estadísticas y conversiones
           _buildStatsGrid(data),
           const SizedBox(height: 24),
 
-          // ── Botón de intercambio ───────────────────────────
+          // Botón de intercambio
           _buildExchangeButton(data),
         ],
       ),
