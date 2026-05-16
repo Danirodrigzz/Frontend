@@ -76,14 +76,12 @@ class MainLayout extends ConsumerWidget {
               width: isMobile ? 120 : 180,
               child: GestureDetector(
                 onTap: () => context.go('/'),
-                child: SvgPicture.asset(
-                  'assets/images/logo-2.svg',
+                child: Image.asset(
+                  'assets/images/logo.png',
                   height: isMobile ? 22 : 28,
                   fit: BoxFit.contain,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
-                    BlendMode.srcIn,
-                  ),
+                  color: AppColors.primary,
+                  colorBlendMode: BlendMode.srcIn,
                 ),
               ),
             ),
