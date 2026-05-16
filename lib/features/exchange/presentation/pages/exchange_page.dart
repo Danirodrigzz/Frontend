@@ -125,7 +125,10 @@ class _ExchangePageState extends ConsumerState<ExchangePage>
     final cantidad =
         double.tryParse(_cantidadController.text.replaceAll(',', '.')) ?? 0;
 
-    if (cantidad <= 0 || _cantidadDestino <= 0) return;
+    if (cantidad <= 0 || _cantidadDestino <= 0) {
+      setState(() => _errorMessage = 'Ingresa una cantidad válida para intercambiar');
+      return;
+    }
 
     setState(() => _procesando = true);
 

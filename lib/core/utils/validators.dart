@@ -16,12 +16,15 @@ class Validators {
     if (value == null || value.trim().isEmpty) {
       return 'Ingresa tu correo electrónico';
     }
-    // Expresión regular estándar para validación de email
+    // Expresión regular más robusta para validación de email
     final emailRegex = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+      r'^[a-zA-Z0-9.!#$%&' '*' r"'+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
     );
     if (!emailRegex.hasMatch(value.trim())) {
-      return 'Ingresa un correo electrónico válido';
+      return 'Formato de correo electrónico no válido';
+    }
+    if (value.length > 50) {
+      return 'El correo es demasiado largo';
     }
     return null;
   }
@@ -54,16 +57,34 @@ class Validators {
     return null;
   }
 
-  /// Valida nombre de usuario (mínimo 3 caracteres, alfanumérico)
+  /// Lista de palabras ofensivas prohibidas
+  static const List<String> _palabrasProhibidas = [
+    'ofensiva1', 'ofensiva2', 'groseria', 'insulto', // Ejemplos
+    'malpalabra', 'idiota', 'estupido'
+  ];
+
+  /// Valida nombre de usuario (mínimo 3 caracteres, alfanumérico y sin groserías)
   static String? nombreUsuario(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Ingresa tu nombre de usuario';
     }
-    if (value.trim().length < 3) {
+    final cleanValue = value.trim().toLowerCase();
+    
+    if (cleanValue.length < 3) {
       return 'El nombre debe tener al menos 3 caracteres';
     }
-    if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value.trim())) {
-      return 'Solo se permiten letras, números y guión bajo';
+    if (cleanValue.length > 20) {
+      return 'El nombre no puede exceder los 20 caracteres';
+    }
+    if (!RegExp(r'^[a-zA-Z0-9áéíóúñÁÉÍÓÚÑ_ ]+$').hasMatch(value.trim())) {
+      return 'Solo se permiten letras, números, espacios y guión bajo';
+    }
+    
+    // Filtro de groserías
+    for (final palabra in _palabrasProhibidas) {
+      if (cleanValue.contains(palabra)) {
+        return 'El nombre contiene lenguaje no permitido';
+      }
     }
     return null;
   }

@@ -24,6 +24,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _emailController = TextEditingController();
   final _contrasenaController = TextEditingController();
   bool _mostrarContrasena = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -34,11 +35,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   Future<void> _iniciarSesion() async {
     if (!_formKey.currentState!.validate()) return;
+    
+    setState(() => _errorMessage = null);
+    
     final exito = await ref.read(authProvider.notifier).iniciarSesion(
       email: _emailController.text,
       contrasena: _contrasenaController.text,
     );
-    if (exito && mounted) context.go('/');
+    
+    if (exito && mounted) {
+      context.go('/');
+    } else if (mounted) {
+      setState(() => _errorMessage = ref.read(authProvider).error);
+    }
   }
 
   @override
@@ -48,7 +57,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final isWide = size.width > 1200;
 
     ref.listen<AuthState>(authProvider, (prev, next) {
-      if (next.error != null) {
+      if (next.error != null && !isWide) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(next.error!),
           backgroundColor: AppColors.error.withValues(alpha: 0.9),
@@ -286,6 +295,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ),
 
+            if (_errorMessage != null) _buildErrorBanner(),
+
             const SizedBox(height: 24),
 
             // Email
@@ -296,6 +307,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               icon: Icons.email_outlined,
               validator: Validators.email,
               keyboardType: TextInputType.emailAddress,
+              maxLength: 50,
             ),
             const SizedBox(height: 14),
 
@@ -380,6 +392,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     bool obscure = false,
     Widget? suffixIcon,
     TextInputType? keyboardType,
+    int? maxLength,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -394,8 +407,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           obscureText: obscure,
           keyboardType: keyboardType,
           validator: validator,
+          maxLength: maxLength,
           style: const TextStyle(color: AppColors.onSurface, fontSize: 13),
           decoration: InputDecoration(
+            counterText: '',
             hintText: hint,
             hintStyle: TextStyle(color: AppColors.onSurfaceMuted.withValues(alpha: 0.4), fontSize: 13),
             prefixIcon: Icon(icon, color: AppColors.onSurfaceMuted, size: 16),
@@ -424,6 +439,40 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildErrorBanner() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.error.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.error.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 14),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                _errorMessage!,
+                style: const TextStyle(
+                  color: AppColors.error,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: () => setState(() => _errorMessage = null),
+              child: const Icon(Icons.close_rounded, color: AppColors.error, size: 14),
+            ),
+          ],
+        ),
+      ).animate().fadeIn().shake(duration: 400.ms),
     );
   }
 
